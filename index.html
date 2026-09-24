@@ -3,952 +3,1381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Despesas - Simples</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
+    <title>Controle de Despesas - Firebase</title>
 
-        .header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
+        }
+
+        .login-container {
+            background: white;
             border-radius: 10px;
-            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .login-container.active {
+            display: block;
+        }
+
+        .login-container h1 {
+            color: #333;
+            margin-bottom: 30px;
             text-align: center;
         }
 
-        .header h1 { font-size: 24px; margin-bottom: 5px; }
-
-        .content-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .login-container .form-group {
             margin-bottom: 20px;
+        }
+
+        .login-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .toggle-mode {
+            text-align: center;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toggle-mode:hover {
+            text-decoration: underline;
+        }
+
+        .app-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .app-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .tabs {
             display: flex;
-            gap: 0;
-            margin-bottom: 10px;
-            border-top: 2px solid #ddd;
-            border-bottom: 2px solid #ddd;
-            overflow-x: auto;
-            padding: 0;
-            justify-content: center;
-        }
-
-        .tabs:last-of-type {
-            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            background: #f8f9fa;
         }
 
         .tab-btn {
-            background: white;
+            flex: 1;
+            padding: 15px 20px;
             border: none;
-            padding: 14px 18px;
-            font-size: 13px;
-            font-weight: 600;
+            background: none;
             cursor: pointer;
+            font-size: 16px;
             color: #666;
-            border-right: 1px solid #f0f0f0;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .tab-btn:hover {
-            background: #f9f9f9;
-            color: #28a745;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
         }
 
         .tab-btn.active {
-            color: #28a745;
-            background: #f9fff9;
-            font-weight: 700;
+            color: #667eea;
+            border-bottom-color: #667eea;
         }
 
-        .section { display: none; }
-        .section.active { display: block; }
+        .tab-content {
+            display: none;
+            padding: 30px;
+            flex: 1;
+        }
 
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
-        .input-group input, .input-group select {
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
         }
 
-        .input-group input:focus, .input-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            border-color: #28a745;
-            background: #f9fff9;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         .btn {
-            width: 100%;
-            background: #28a745;
-            color: white;
+            padding: 10px 20px;
             border: none;
-            padding: 12px;
             border-radius: 5px;
             cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
             font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
         }
 
-        .btn:active { background: #218838; transform: scale(0.98); }
-        .btn-danger { background: #dc3545; }
-        .btn-small { width: auto; padding: 8px 12px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #f8f9fa; font-weight: 600; }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
 
-        .dashboard-grid {
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .btn-secondary {
+            background: #999;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .positive {
+            color: #4caf50;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        .dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .card {
-            padding: 15px;
+            background: #f8f9fa;
+            padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid;
-            text-align: center;
+            border-left: 4px solid #667eea;
         }
 
-        .card-label { font-size: 11px; color: #666; margin-bottom: 5px; }
-        .card-value { font-size: 18px; font-weight: 600; }
-        .card-receita { background: #f9fff9; border-color: #28a745; }
-        .card-despesa { background: #fff9f9; border-color: #dc3545; }
-        .card-saldo { background: #f0f9ff; border-color: #007bff; }
+        .card-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .card.positive {
+            border-left-color: #4caf50;
+        }
+
+        .card.negative {
+            border-left-color: #f44336;
+        }
 
         .chart-container {
-            position: relative;
-            height: 300px;
-            margin-top: 15px;
-            background: #f9f9f9;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 500px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            font-size: 14px;
         }
 
-        .chart-container svg {
-            width: 100%;
-            height: 100%;
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
         }
 
-        .msg { padding: 12px; border-radius: 5px; margin-bottom: 15px; display: none; font-size: 13px; }
-        .msg-success { background: #d4edda; color: #155724; }
-        .msg-error { background: #f8d7da; color: #721c24; }
+        .alert.active {
+            display: block;
+        }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
 
         @media (max-width: 768px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .grid-2 { grid-template-columns: 1fr; }
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 auto;
+                min-width: 100px;
+            }
+        }
+
+        .month-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-picker input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 150px;
+        }
+
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-item button {
+            padding: 5px 10px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 Controle de Despesas</h1>
-            <p style="font-size: 13px; opacity: 0.9; margin: 5px 0 0 0;">Seus dados são salvos automaticamente</p>
+    <!-- ============================================ -->
+    <!-- IMPORTANTE: Substitua as credenciais do Firebase pelas suas! -->
+    <!-- 1. Vá em: https://console.firebase.google.com/ -->
+    <!-- 2. Crie um novo projeto -->
+    <!-- 3. Clique em "Configurar o SDK do Web" -->
+    <!-- 4. Copie as credenciais abaixo e substitua: -->
+    <!-- ============================================ -->
+
+    <!-- Login Container -->
+    <div class="login-container active" id="loginContainer">
+        <h1>Controle de Despesas</h1>
+
+        <div class="alert" id="loginAlert"></div>
+
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="loginPassword" placeholder="Sua senha">
+            </div>
+            <button class="login-btn" onclick="login()">Entrar</button>
+            <div class="toggle-mode" onclick="toggleLoginMode()">Criar nova conta</div>
         </div>
 
-        <div class="content-box">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="abrir('dashboard')">📈 Resultados</button>
-                <button class="tab-btn" onclick="abrir('investimentos')">💰 Investimentos</button>
+        <div id="registerForm" style="display: none;">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="registerEmail" placeholder="seu@email.com">
             </div>
-            <div class="tabs">
-                <button class="tab-btn" onclick="abrir('controle')">📊 Controle</button>
-                <button class="tab-btn" onclick="abrir('categorias')">🏷️ Categorias</button>
-                <button class="tab-btn" onclick="abrir('config')">⚙️ Config</button>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="form-group">
+                <label>Confirme a Senha:</label>
+                <input type="password" id="registerPasswordConfirm" placeholder="Repita a senha">
+            </div>
+            <button class="login-btn" onclick="register()">Criar Conta</button>
+            <div class="toggle-mode" onclick="toggleLoginMode()">Voltar para login</div>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container" id="appContainer">
+        <div class="header">
+            <h1>💰 Controle de Despesas</h1>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="status-indicator"></span>
+                    <span id="userEmail">Usuário</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Sair</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('resultados')">📊 Resultados</button>
+            <button class="tab-btn" onclick="showTab('controle')">➕ Controle</button>
+            <button class="tab-btn" onclick="showTab('investimentos')">📈 Investimentos</button>
+            <button class="tab-btn" onclick="showTab('categorias')">🏷️ Categorias</button>
+            <button class="tab-btn" onclick="showTab('config')">⚙️ Config</button>
+        </div>
+
+        <!-- TAB: Resultados -->
+        <div class="tab-content active" id="resultados">
+            <h2>Resultados do Mês</h2>
+
+            <div class="month-picker">
+                <label>Mês:</label>
+                <input type="month" id="filterMonth" onchange="filterByMonth()">
             </div>
 
-            <!-- CONTROLE -->
-            <div id="controle" class="section">
-                <div class="msg msg-success" id="msgSuccess">✅ Lançamento adicionado!</div>
-                <div class="msg msg-error" id="msgError"></div>
+            <div class="alert" id="resultadosAlert"></div>
 
-                <div class="input-group">
-                    <label>📅 Filtrar por mês</label>
-                    <input type="month" id="mesFiltro" onchange="atualizarDados()" />
+            <div class="dashboard">
+                <div class="card positive">
+                    <div class="card-title">Receitas</div>
+                    <div class="card-value" id="totalReceitas">R$ 0,00</div>
                 </div>
-
-                <h3 style="font-size: 16px; margin-bottom: 15px; margin-top: 20px;">Novo Lançamento</h3>
-
-                <div class="input-group">
-                    <label>Data</label>
-                    <input type="date" id="data" />
+                <div class="card negative">
+                    <div class="card-title">Despesas</div>
+                    <div class="card-value" id="totalDespesas">R$ 0,00</div>
                 </div>
+            </div>
 
-                <div class="grid-2">
-                    <div class="input-group" style="margin-bottom: 0;">
-                        <label>Tipo</label>
-                        <select id="tipo">
-                            <option value="despesa">📉 Despesa</option>
-                            <option value="receita">📈 Receita</option>
-                        </select>
-                    </div>
-                    <div class="input-group" style="margin-bottom: 0;">
-                        <label>Valor (R$)</label>
-                        <input type="number" id="valor" placeholder="0.00" step="0.01" />
-                    </div>
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title">Saldo</div>
+                    <div class="card-value" id="saldoTotal">R$ 0,00</div>
                 </div>
+                <div class="card">
+                    <div class="card-title">Investimentos</div>
+                    <div class="card-value" id="totalInvestimentos">R$ 0,00</div>
+                </div>
+            </div>
 
-                <div class="input-group">
-                    <label>Categoria</label>
-                    <select id="categoria">
-                        <option>Alimentação</option>
-                        <option>Transporte</option>
-                        <option>Saúde</option>
-                        <option>Moradia</option>
-                        <option>Educação</option>
-                        <option>Lazer</option>
-                        <option>Outro</option>
+            <div class="chart-container">
+                <h3>Despesas por Categoria</h3>
+                <canvas id="despesasChart"></canvas>
+            </div>
+
+            <h3>Lançamentos do Mês</h3>
+            <table id="lancamentosTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th class="amount">Valor</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="lancamentosTbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB: Controle -->
+        <div class="tab-content" id="controle">
+            <h2>Adicionar Lançamento</h2>
+
+            <div class="alert" id="controleAlert"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data:</label>
+                    <input type="date" id="lancamentoData">
+                </div>
+                <div class="form-group">
+                    <label>Tipo:</label>
+                    <select id="lancamentoTipo" onchange="updateCategorias()">
+                        <option value="">Selecione...</option>
+                        <option value="despesa">Despesa</option>
+                        <option value="receita">Receita</option>
                     </select>
                 </div>
-
-                <div class="input-group">
-                    <label>Descrição</label>
-                    <input type="text" id="descricao" placeholder="Ex: Almoço no restaurante" />
-                </div>
-
-                <button class="btn" onclick="adicionar()">➕ Adicionar Lançamento</button>
-
-                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Últimos Lançamentos</h3>
-                <table id="tabela">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Tipo</th>
-                            <th>Categoria</th>
-                            <th>Descrição</th>
-                            <th>Valor</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody"></tbody>
-                </table>
             </div>
 
-            <!-- DASHBOARD -->
-            <div id="dashboard" class="section active">
-                <div class="msg msg-error" id="msgSemDados" style="display: none;">ℹ️ Nenhum lançamento no período selecionado</div>
-                <h3 style="font-size: 16px; margin-bottom: 15px;">Resumo do Mês</h3>
-
-                <div class="input-group">
-                    <label>📅 Filtrar por mês</label>
-                    <input type="month" id="mesFiltroResultados" onchange="atualizarDadosResultados()" />
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Categoria:</label>
+                    <select id="lancamentoCategoria">
+                        <option value="">Selecione uma categoria</option>
+                    </select>
                 </div>
-
-                <div class="dashboard-grid">
-                    <div class="card card-receita">
-                        <div class="card-label">Total Receitas</div>
-                        <div class="card-value" id="totalReceitas">R$ 0</div>
-                    </div>
-                    <div class="card card-despesa">
-                        <div class="card-label">Total Despesas</div>
-                        <div class="card-value" id="totalDespesas">R$ 0</div>
-                    </div>
-                    <div class="card card-saldo">
-                        <div class="card-label">Saldo</div>
-                        <div class="card-value" id="saldo">R$ 0</div>
-                    </div>
+                <div class="form-group">
+                    <label>Valor:</label>
+                    <input type="number" id="lancamentoValor" placeholder="0.00" step="0.01">
                 </div>
-
-                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Despesas por Categoria (Tabela)</h3>
-                <table id="tabelaCategorias">
-                    <thead>
-                        <tr>
-                            <th>Categoria</th>
-                            <th>Total</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyCategoria"></tbody>
-                </table>
-
-                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">📊 Despesas por Categoria (Gráfico)</h3>
-                <div class="chart-container" id="chartCategoria"></div>
             </div>
 
-            <!-- INVESTIMENTOS -->
-            <div id="investimentos" class="section">
-                <div class="msg msg-success" id="msgInvSuccess">✅ Investimento adicionado!</div>
-                <div class="msg msg-error" id="msgInvError"></div>
-
-                <h3 style="font-size: 16px; margin-bottom: 15px;">Novo Investimento</h3>
-
-                <div class="input-group">
-                    <label>Data</label>
-                    <input type="date" id="dataInv" />
-                </div>
-
-                <div class="grid-2">
-                    <div class="input-group" style="margin-bottom: 0;">
-                        <label>Tipo</label>
-                        <select id="tipoInv">
-                            <option value="Poupança">🏦 Poupança</option>
-                            <option value="Ações">📈 Ações</option>
-                            <option value="Criptomoedas">💎 Criptomoedas</option>
-                            <option value="Fundo">💼 Fundo</option>
-                            <option value="Outro">📌 Outro</option>
-                        </select>
-                    </div>
-                    <div class="input-group" style="margin-bottom: 0;">
-                        <label>Valor (R$)</label>
-                        <input type="number" id="valorInv" placeholder="0.00" step="0.01" />
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label>Descrição</label>
-                    <input type="text" id="descricaoInv" placeholder="Ex: Investimento inicial" />
-                </div>
-
-                <button class="btn" onclick="adicionarInvestimento()">➕ Adicionar Investimento</button>
-
-                <div class="dashboard-grid" style="margin-top: 30px; margin-bottom: 30px;">
-                    <div class="card card-receita">
-                        <div class="card-label">Total Investido</div>
-                        <div class="card-value" id="totalInvestido">R$ 0</div>
-                    </div>
-                </div>
-
-                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Seus Investimentos</h3>
-                <table id="tabelaInv">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Tipo</th>
-                            <th>Descrição</th>
-                            <th>Valor</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyInv"></tbody>
-                </table>
+            <div class="form-group">
+                <label>Descrição:</label>
+                <input type="text" id="lancamentoDescricao" placeholder="Descrição do lançamento">
             </div>
 
-            <!-- CATEGORIAS -->
-            <div id="categorias" class="section">
-                <h3 style="font-size: 16px; margin-bottom: 15px;">Gerenciar Categorias</h3>
+            <button class="btn btn-primary" onclick="adicionarLancamento()">Adicionar Lançamento</button>
 
-                <div class="input-group">
-                    <label>Adicionar Nova Categoria</label>
-                    <input type="text" id="novaCategoria" placeholder="Ex: Viagem, Compras, etc" />
+            <h3 style="margin-top: 30px;">Lançamentos Recentes</h3>
+            <table id="recentes">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th class="amount">Valor</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="receentesTbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB: Investimentos -->
+        <div class="tab-content" id="investimentos">
+            <h2>Registrar Investimento</h2>
+
+            <div class="alert" id="investimentosAlert"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data:</label>
+                    <input type="date" id="investData">
                 </div>
-
-                <button class="btn" onclick="adicionarCategoria()">➕ Adicionar Categoria</button>
-
-                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Categorias Atuais</h3>
-                <div id="categoriasList" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
+                <div class="form-group">
+                    <label>Tipo:</label>
+                    <input type="text" id="investTipo" placeholder="Ex: Ações, Fundo, Cripto">
+                </div>
             </div>
 
-            <!-- CONFIG -->
-            <div id="config" class="section">
-                <h3 style="font-size: 16px; margin-bottom: 15px;">Configurações</h3>
-
-                <button class="btn-small" onclick="exportarCSV()">📥 Exportar CSV</button>
-                <button class="btn-small btn-danger" onclick="limparTudo()">🗑️ Limpar Tudo</button>
-
-                <p style="margin-top: 20px; font-size: 12px; color: #666;">
-                    <strong>ℹ️ Informações:</strong><br>
-                    • Dados salvos localmente no seu navegador<br>
-                    • Funciona offline<br>
-                    • Nenhum dados é enviado para servidor
-                </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor:</label>
+                    <input type="number" id="investValor" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Rentabilidade (%):</label>
+                    <input type="number" id="investRent" placeholder="0.00" step="0.01">
+                </div>
             </div>
+
+            <div class="form-group">
+                <label>Descrição:</label>
+                <input type="text" id="investDescricao" placeholder="Descrição do investimento">
+            </div>
+
+            <button class="btn btn-primary" onclick="adicionarInvestimento()">Adicionar Investimento</button>
+
+            <h3 style="margin-top: 30px;">Investimentos Registrados</h3>
+            <table id="investTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th class="amount">Valor</th>
+                        <th class="amount">Rentabilidade</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="investTbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB: Categorias -->
+        <div class="tab-content" id="categorias">
+            <h2>Gerenciar Categorias</h2>
+
+            <div class="alert" id="categoriasAlert"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo:</label>
+                    <select id="novaCategoriaType">
+                        <option value="despesa">Despesa</option>
+                        <option value="receita">Receita</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nome da Categoria:</label>
+                    <input type="text" id="novaCategoriaNome" placeholder="Ex: Alimentação">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="adicionarCategoria()">Adicionar Categoria</button>
+
+            <h3 style="margin-top: 30px;">Categorias de Despesa</h3>
+            <div class="category-list" id="despesaCategories">
+            </div>
+
+            <h3 style="margin-top: 30px;">Categorias de Receita</h3>
+            <div class="category-list" id="receitaCategories">
+            </div>
+        </div>
+
+        <!-- TAB: Configurações -->
+        <div class="tab-content" id="config">
+            <h2>Configurações</h2>
+
+            <div class="alert" id="configAlert"></div>
+
+            <h3>Exportar/Importar Dados</h3>
+            <p style="margin-bottom: 15px; color: #666;">Você pode baixar seus dados em JSON ou importar de um arquivo anterior.</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+                <button class="btn btn-success" onclick="exportarDados()">📥 Exportar Dados</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importar Dados</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarDados(event)">
+            </div>
+
+            <h3>Informações da Conta</h3>
+            <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                <p><strong>Email:</strong> <span id="userEmailDisplay">-</span></p>
+                <p><strong>UID:</strong> <span id="userUIDDisplay" style="font-family: monospace; font-size: 12px; word-break: break-all;">-</span></p>
+                <p><strong>Último acesso:</strong> <span id="lastLoginDisplay">-</span></p>
+            </div>
+
+            <h3 style="margin-top: 30px; color: #f44336;">Zona de Perigo</h3>
+            <p style="margin-bottom: 15px; color: #666;">Essas ações não podem ser desfeitas.</p>
+            <button class="btn btn-danger" onclick="if(confirm('Tem certeza? Essa ação é irreversível!')) { limparTodosDados(); }">🗑️ Limpar Todos os Dados</button>
         </div>
     </div>
 
     <script>
-        let dados = [];
-        let categorias = ['Alimentação', 'Transporte', 'Saúde', 'Moradia', 'Educação', 'Lazer', 'Outro'];
+        // ============================================
+        // CONFIGURAÇÃO DO FIREBASE
+        // ============================================
+        // SUBSTITUA PELAS SUAS CREDENCIAIS!
+        const firebaseConfig = {
+             apiKey: "AIzaSyCaTj8hGvbXJerPHxKrZt5T5bJorJy8Qas",
+  	     authDomain: "financas-46c16.firebaseapp.com",
+  	     projectId: "financas-46c16",
+  	     storageBucket: "financas-46c16.firebasestorage.app",
+  	     messagingSenderId: "227643205501",
+  	     appId: "1:227643205501:web:72f5e630d9511915508e14"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // ============================================
+        // VARIÁVEIS GLOBAIS
+        // ============================================
+        let usuarioLogado = null;
+        let lancamentos = [];
         let investimentos = [];
+        let categoriasDespesa = ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
+        let categoriasReceita = ['Salário', 'Freelance', 'Investimentos', 'Outros'];
+        let filtroMes = new Date().toISOString().slice(0, 7);
+        let despesasChart = null;
 
-        // Init
-        window.addEventListener('load', () => {
+        // ============================================
+        // AUTENTICAÇÃO
+        // ============================================
+        function toggleLoginMode() {
+            document.getElementById('loginForm').style.display =
+                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display =
+                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAlert('loginAlert', 'Por favor, preencha email e senha', 'error');
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    usuarioLogado = userCredential.user;
+                    inicializarApp();
+                })
+                .catch(error => {
+                    showAlert('loginAlert', 'Erro: ' + error.message, 'error');
+                });
+        }
+
+        function register() {
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerPasswordConfirm').value;
+
+            if (!email || !password || !confirmPassword) {
+                showAlert('loginAlert', 'Por favor, preencha todos os campos', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('loginAlert', 'As senhas não conferem', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('loginAlert', 'A senha deve ter no mínimo 6 caracteres', 'error');
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    usuarioLogado = userCredential.user;
+                    inicializarApp();
+                })
+                .catch(error => {
+                    showAlert('loginAlert', 'Erro: ' + error.message, 'error');
+                });
+        }
+
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                auth.signOut().then(() => {
+                    usuarioLogado = null;
+                    lancamentos = [];
+                    investimentos = [];
+                    document.getElementById('loginContainer').classList.add('active');
+                    document.getElementById('appContainer').classList.remove('active');
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPassword').value = '';
+                });
+            }
+        }
+
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        function inicializarApp() {
+            document.getElementById('loginContainer').classList.remove('active');
+            document.getElementById('appContainer').classList.add('active');
+            document.getElementById('userEmail').textContent = usuarioLogado.email;
+            document.getElementById('userEmailDisplay').textContent = usuarioLogado.email;
+            document.getElementById('userUIDDisplay').textContent = usuarioLogado.uid;
+
+            // Definir data de hoje como padrão
             const hoje = new Date().toISOString().split('T')[0];
-            document.getElementById('data').value = hoje;
-            document.getElementById('dataInv').value = hoje;
-            document.getElementById('mesFiltro').value = hoje.slice(0, 7);
-            document.getElementById('mesFiltroResultados').value = hoje.slice(0, 7);
+            document.getElementById('lancamentoData').value = hoje;
+            document.getElementById('investData').value = hoje;
 
-            carregarCategorias();
-            carregarDados(); // Já adiciona dados de teste se vazio
-            carregarInvestimentos();
-        });
+            // Definir mês atual no filtro
+            document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
 
-        // DADOS DE TESTE - remover após validar
-        function adicionarDadosTeste() {
-            if (dados.length > 0) return; // Só adiciona se vazio
-
-            const hoje = new Date();
-            const mesAtual = hoje.toISOString().slice(0, 7);
-
-            // Dados de teste
-            dados = [
-                { id: 1, data: mesAtual + '-01', tipo: 'receita', valor: 3000, categoria: 'Salário', descricao: 'Salário', timestamp: Date.now() },
-                { id: 2, data: mesAtual + '-05', tipo: 'despesa', valor: 800, categoria: 'Moradia', descricao: 'Aluguel', timestamp: Date.now() },
-                { id: 3, data: mesAtual + '-07', tipo: 'despesa', valor: 200, categoria: 'Alimentação', descricao: 'Supermercado', timestamp: Date.now() },
-                { id: 4, data: mesAtual + '-10', tipo: 'despesa', valor: 150, categoria: 'Transporte', descricao: 'Combustível', timestamp: Date.now() },
-                { id: 5, data: mesAtual + '-12', tipo: 'despesa', valor: 100, categoria: 'Saúde', descricao: 'Farmácia', timestamp: Date.now() },
-                { id: 6, data: mesAtual + '-15', tipo: 'receita', valor: 500, categoria: 'Extra', descricao: 'Freelance', timestamp: Date.now() }
-            ];
-            salvarDados();
-            console.log('Dados de teste adicionados');
+            // Carregar dados do Firebase
+            carregarDados();
         }
 
-        function carregarCategorias() {
-            const saved = localStorage.getItem('categorias');
-            if (saved) {
-                categorias = JSON.parse(saved);
-            }
-            atualizarSelectCategorias();
-            atualizarListaCategorias();
-        }
-
-        function salvarCategorias() {
-            localStorage.setItem('categorias', JSON.stringify(categorias));
-        }
-
-        function adicionarCategoria() {
-            const input = document.getElementById('novaCategoria');
-            const cat = input.value.trim();
-
-            if (!cat) {
-                alert('Digite o nome da categoria!');
-                return;
-            }
-
-            if (categorias.includes(cat)) {
-                alert('Esta categoria já existe!');
-                return;
-            }
-
-            categorias.push(cat);
-            salvarCategorias();
-            input.value = '';
-            atualizarSelectCategorias();
-            atualizarListaCategorias();
-        }
-
-        function deletarCategoria(cat) {
-            if (confirm(`Deletar categoria "${cat}"?`)) {
-                categorias = categorias.filter(c => c !== cat);
-                salvarCategorias();
-                atualizarSelectCategorias();
-                atualizarListaCategorias();
-            }
-        }
-
-        function atualizarSelectCategorias() {
-            const select = document.getElementById('categoria');
-            const valor = select.value;
-            select.innerHTML = '';
-            categorias.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.innerText = cat;
-                select.appendChild(option);
-            });
-            select.value = valor || categorias[0];
-        }
-
-        function atualizarListaCategorias() {
-            const lista = document.getElementById('categoriasList');
-            lista.innerHTML = '';
-            categorias.forEach(cat => {
-                const tag = document.createElement('div');
-                tag.style.cssText = 'background: #f0f0f0; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
-                tag.innerHTML = `
-                    ${cat}
-                    <button onclick="deletarCategoria('${cat}')" style="background: none; border: none; color: #dc3545; cursor: pointer; font-weight: 600; padding: 0; font-size: 14px;">✕</button>
-                `;
-                lista.appendChild(tag);
-            });
-        }
-
+        // ============================================
+        // FIRESTORE: CARREGAR DADOS
+        // ============================================
         function carregarDados() {
-            const saved = localStorage.getItem('despesas');
-            if (saved) {
-                dados = JSON.parse(saved);
-            }
-            // Se não houver dados, adiciona dados de teste
-            if (dados.length === 0) {
-                adicionarDadosTeste();
-            }
-            atualizarDados();
+            if (!usuarioLogado) return;
+
+            const userPath = `usuarios/${usuarioLogado.uid}/dados`;
+
+            // Escutar mudanças em tempo real
+            db.ref(userPath).on('value', (snapshot) => {
+                const dados = snapshot.val() || {};
+
+                lancamentos = dados.lancamentos || [];
+                investimentos = dados.investimentos || [];
+                categoriasDespesa = dados.categoriasDespesa || ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
+                categoriasReceita = dados.categoriasReceita || ['Salário', 'Freelance', 'Investimentos', 'Outros'];
+
+                // Atualizar UI
+                updateCategorias();
+                atualizarResultados();
+                atualizarLancamentos();
+                atualizarInvestimentos();
+                atualizarCategorias();
+            });
         }
 
+        // ============================================
+        // FIRESTORE: SALVAR DADOS
+        // ============================================
         function salvarDados() {
-            localStorage.setItem('despesas', JSON.stringify(dados));
+            if (!usuarioLogado) return;
+
+            const userPath = `usuarios/${usuarioLogado.uid}/dados`;
+            const dados = {
+                lancamentos,
+                investimentos,
+                categoriasDespesa,
+                categoriasReceita,
+                ultimaAtualizacao: new Date().toISOString()
+            };
+
+            db.ref(userPath).set(dados, (error) => {
+                if (error) {
+                    showAlert('controleAlert', 'Erro ao salvar dados: ' + error.message, 'error');
+                }
+            });
         }
 
-        function adicionar() {
-            const data = document.getElementById('data').value;
-            const tipo = document.getElementById('tipo').value;
-            const valor = parseFloat(document.getElementById('valor').value);
-            const categoria = document.getElementById('categoria').value;
-            const descricao = document.getElementById('descricao').value;
+        // ============================================
+        // LANÇAMENTOS
+        // ============================================
+        function adicionarLancamento() {
+            const data = document.getElementById('lancamentoData').value;
+            const tipo = document.getElementById('lancamentoTipo').value;
+            const categoria = document.getElementById('lancamentoCategoria').value;
+            const valor = parseFloat(document.getElementById('lancamentoValor').value);
+            const descricao = document.getElementById('lancamentoDescricao').value.trim();
 
-            if (!data || !valor) {
-                mostrarErro('Preencha data e valor!');
+            if (!data || !tipo || !categoria || !valor || valor <= 0) {
+                showAlert('controleAlert', 'Por favor, preencha todos os campos corretamente', 'error');
                 return;
             }
 
-            if (valor <= 0) {
-                mostrarErro('O valor deve ser maior que zero!');
-                return;
-            }
-
-            dados.push({
+            const lancamento = {
                 id: Date.now(),
                 data,
                 tipo,
-                valor,
                 categoria,
-                descricao,
-                timestamp: new Date().getTime()
-            });
+                valor,
+                descricao: descricao || 'Sem descrição'
+            };
 
+            lancamentos.push(lancamento);
             salvarDados();
-            document.getElementById('msgSuccess').style.display = 'block';
-            setTimeout(() => document.getElementById('msgSuccess').style.display = 'none', 2000);
 
-            // Limpar form
-            document.getElementById('data').value = new Date().toISOString().split('T')[0];
-            document.getElementById('descricao').value = '';
-            document.getElementById('valor').value = '';
+            // Limpar formulário
+            document.getElementById('lancamentoData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('lancamentoTipo').value = '';
+            document.getElementById('lancamentoCategoria').value = '';
+            document.getElementById('lancamentoValor').value = '';
+            document.getElementById('lancamentoDescricao').value = '';
 
-            atualizarDados();
+            showAlert('controleAlert', 'Lançamento adicionado com sucesso!', 'success');
+            updateCategorias();
+            atualizarResultados();
         }
 
-        function atualizarDados() {
-            const mes = document.getElementById('mesFiltro').value;
-            const filtrados = dados.filter(d => d.data.startsWith(mes)).sort((a, b) => new Date(b.data) - new Date(a.data));
-
-            // Atualizar tabela
-            const tbody = document.getElementById('tbody');
-            tbody.innerHTML = '';
-            filtrados.forEach(d => {
-                const row = tbody.insertRow();
-                const sinal = d.tipo === 'despesa' ? '-' : '+';
-                const cor = d.tipo === 'despesa' ? '#dc3545' : '#28a745';
-                row.innerHTML = `
-                    <td>${formatarData(d.data)}</td>
-                    <td>${d.tipo === 'despesa' ? '📉' : '📈'}</td>
-                    <td>${d.categoria}</td>
-                    <td>${d.descricao}</td>
-                    <td style="color: ${cor}; font-weight: 600;">${sinal}R$ ${d.valor.toFixed(2).replace('.', ',')}</td>
-                    <td><button class="btn-small btn-danger" onclick="deletar(${d.id})">🗑️</button></td>
-                `;
-            });
-
-            // Calcular totais
-            let receita = 0, despesa = 0, porCat = {};
-            filtrados.forEach(d => {
-                if (d.tipo === 'receita') receita += d.valor;
-                else {
-                    despesa += d.valor;
-                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
-                }
-            });
-
-            const saldo = receita - despesa;
-            document.getElementById('totalReceitas').innerText = `R$ ${receita.toFixed(2).replace('.', ',')}`;
-            document.getElementById('totalDespesas').innerText = `R$ ${despesa.toFixed(2).replace('.', ',')}`;
-            document.getElementById('saldo').innerText = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
-            document.getElementById('saldo').style.color = saldo >= 0 ? '#007bff' : '#dc3545';
-
-            // Tabela de categorias
-            const tbodyC = document.getElementById('tbodyCategoria');
-            tbodyC.innerHTML = '';
-            Object.entries(porCat).forEach(([cat, val]) => {
-                const pct = despesa > 0 ? (val / despesa * 100).toFixed(1) : 0;
-                const row = tbodyC.insertRow();
-                row.innerHTML = `<td>${cat}</td><td>R$ ${val.toFixed(2).replace('.', ',')}</td><td>${pct}%</td>`;
-            });
-
-            // Gráficos - desenhar com SVG
-            desenharGraficos(filtrados);
-        }
-
-        function desenharGraficos(filtrados) {
-            const msgSemDados = document.getElementById('msgSemDados');
-
-            if (!filtrados || filtrados.length === 0) {
-                if (msgSemDados) msgSemDados.style.display = 'block';
-                document.getElementById('chartCategoria').innerHTML = '';
-                return;
-            }
-
-            if (msgSemDados) msgSemDados.style.display = 'none';
-
-            // GRÁFICO: Pizza - Despesas por Categoria
-            const porCat = {};
-            filtrados.forEach(d => {
-                if (d.tipo === 'despesa') {
-                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
-                }
-            });
-
-            const categorias = Object.keys(porCat);
-            const valores = Object.values(porCat);
-
-            if (categorias.length > 0) {
-                desenharPizza('chartCategoria', categorias, valores);
-            } else {
-                document.getElementById('chartCategoria').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">Sem despesas para exibir</div>';
-            }
-        }
-
-        function desenharPizza(containerId, labels, valores) {
-            const container = document.getElementById(containerId);
-            const width = container.clientWidth || 500;
-            const height = container.clientHeight || 300;
-
-            // Margins e espaço útil do gráfico
-            const margin = { top: 20, right: 20, bottom: 50, left: 60 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = Math.min(height - margin.top - margin.bottom, 200); // Máximo 200px
-            const chartY = margin.top + (height - margin.top - margin.bottom - chartHeight) / 2; // Centralizar
-
-            // Encontrar min/max dos valores para escala apropriada
-            const minVal = Math.min(...valores, 0);
-            const maxVal = Math.max(...valores, 0);
-            const range = maxVal - minVal || 100; // Mínimo de 100 para não quebrar escala
-
-            // Calcular um múltiplo de 500 para escala redonda
-            let maxRound = 500;
-            if (maxVal > 0) {
-                maxRound = Math.ceil(maxVal / 500) * 500;
-            }
-            let minRound = 0;
-            if (minVal < 0) {
-                minRound = -Math.ceil(Math.abs(minVal) / 500) * 500;
-            }
-            const rangeRound = maxRound - minRound || 100;
-
-            const yScale = chartHeight / rangeRound;
-            const xScale = chartWidth / (labels.length || 1);
-            const barWidth = Math.min(xScale * 0.6, 40); // Largura máxima de 40px
-            const baselineY = chartY + chartHeight - (0 - minRound) * yScale; // Posição do eixo X (zero)
-
-            let svg = `<svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" style="background: white;">`;
-
-            // Grid de fundo (linhas horizontais)
-            const steps = 5;
-            for (let i = 0; i <= steps; i++) {
-                const val = minRound + (i * rangeRound / steps);
-                const y = chartY + chartHeight - ((val - minRound) * yScale);
-                svg += `<line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
-            }
-
-            // Eixo X (horizontal)
-            svg += `<line x1="${margin.left}" y1="${baselineY}" x2="${width - margin.right}" y2="${baselineY}" stroke="#333" stroke-width="2"/>`;
-
-            // Eixo Y (vertical)
-            svg += `<line x1="${margin.left}" y1="${chartY}" x2="${margin.left}" y2="${chartY + chartHeight}" stroke="#333" stroke-width="2"/>`;
-
-            // Labels Y (valores de escala)
-            for (let i = 0; i <= steps; i++) {
-                const val = minRound + (i * rangeRound / steps);
-                const y = chartY + chartHeight - ((val - minRound) * yScale);
-                svg += `<line x1="${margin.left - 5}" y1="${y}" x2="${margin.left}" y2="${y}" stroke="#333" stroke-width="1"/>`;
-                svg += `<text x="${margin.left - 10}" y="${y + 4}" font-size="10" text-anchor="end" fill="#333" font-weight="500">R$ ${val.toFixed(0)}</text>`;
-            }
-
-            // Barras - desenhar com espaçamento
-            valores.forEach((val, i) => {
-                const x = margin.left + (i + 0.5) * xScale - (barWidth / 2);
-                const barHeight = val * yScale;
-                let barY, actualBarHeight;
-                const cor = val >= 0 ? '#28a745' : '#dc3545';
-
-                if (barHeight >= 0) {
-                    // Barra positiva (sobe para cima)
-                    barY = baselineY - barHeight;
-                    actualBarHeight = barHeight;
-                } else {
-                    // Barra negativa (desce para baixo)
-                    barY = baselineY;
-                    actualBarHeight = Math.abs(barHeight);
-                }
-
-                if (actualBarHeight > 0.5) { // Só desenhar se visível
-                    svg += `<rect x="${x}" y="${barY}" width="${barWidth}" height="${actualBarHeight}" fill="${cor}" opacity="0.85" rx="2"/>`;
-
-                    // Valor em cima da barra
-                    const labelY = barHeight >= 0 ? barY - 5 : barY + actualBarHeight + 15;
-                    svg += `<text x="${x + barWidth/2}" y="${labelY}" font-size="10" text-anchor="middle" fill="#333" font-weight="600">R$ ${val.toFixed(0)}</text>`;
-                }
-            });
-
-            // Labels X (datas)
-            labels.forEach((label, i) => {
-                const x = margin.left + (i + 0.5) * xScale;
-                const dataFormatada = formatarData(label);
-                const dia = dataFormatada.split('/')[0];
-                svg += `<text x="${x}" y="${baselineY + 25}" font-size="11" text-anchor="middle" fill="#333" font-weight="500">${dia}</text>`;
-            });
-
-            // Título dos eixos (opcional)
-            svg += `<text x="${margin.left - 35}" y="${chartY - 10}" font-size="11" text-anchor="middle" fill="#666" font-style="italic">Fluxo</text>`;
-            svg += `<text x="${width - 20}" y="${baselineY + 45}" font-size="11" text-anchor="middle" fill="#666" font-style="italic">Dias</text>`;
-
-            svg += `</svg>`;
-            container.innerHTML = svg;
-        }
-
-        function desenharPizza(containerId, labels, valores) {
-            const container = document.getElementById(containerId);
-            const width = container.clientWidth || 500;
-            const height = container.clientHeight || 300;
-            const centerX = width / 2.5;
-            const centerY = height / 2;
-            const raio = Math.min(width, height) / 3;
-
-            const cores = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF9F40', '#C9CBCF'];
-            const total = valores.reduce((a, b) => a + b, 0);
-
-            let svg = `<svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" style="background: white;">`;
-
-            let anguloInicial = -Math.PI / 2;
-
-            valores.forEach((val, i) => {
-                const proporcao = val / total;
-                const anguloFinal = anguloInicial + (proporcao * 2 * Math.PI);
-
-                // Calcular coordenadas
-                const x1 = centerX + raio * Math.cos(anguloInicial);
-                const y1 = centerY + raio * Math.sin(anguloInicial);
-                const x2 = centerX + raio * Math.cos(anguloFinal);
-                const y2 = centerY + raio * Math.sin(anguloFinal);
-
-                const large = proporcao > 0.5 ? 1 : 0;
-                const path = `M ${centerX} ${centerY} L ${x1} ${y1} A ${raio} ${raio} 0 ${large} 1 ${x2} ${y2} Z`;
-
-                svg += `<path d="${path}" fill="${cores[i % cores.length]}" stroke="white" stroke-width="2"/>`;
-
-                // Label com percentual
-                const anguloMeio = anguloInicial + (proporcao * Math.PI);
-                const labelX = centerX + (raio * 0.65) * Math.cos(anguloMeio);
-                const labelY = centerY + (raio * 0.65) * Math.sin(anguloMeio);
-                const pct = (proporcao * 100).toFixed(0);
-
-                if (pct > 8) { // Só mostrar se for visível
-                    svg += `<text x="${labelX}" y="${labelY}" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">${pct}%</text>`;
-                }
-
-                anguloInicial = anguloFinal;
-            });
-
-            // Legenda
-            let legendaY = 20;
-            labels.forEach((label, i) => {
-                const pct = (valores[i] / total * 100).toFixed(1);
-                svg += `<rect x="${width / 1.5}" y="${legendaY}" width="12" height="12" fill="${cores[i % cores.length]}" rx="2"/>`;
-                svg += `<text x="${width / 1.5 + 18}" y="${legendaY + 10}" font-size="11" fill="#333">${label} (${pct}%)</text>`;
-                legendaY += 20;
-            });
-
-            svg += `</svg>`;
-            container.innerHTML = svg;
-        }
-
-        function deletar(id) {
-            if (confirm('Deletar este lançamento?')) {
-                dados = dados.filter(d => d.id !== id);
+        function deletarLancamento(id) {
+            if (confirm('Tem certeza que deseja deletar este lançamento?')) {
+                lancamentos = lancamentos.filter(l => l.id !== id);
                 salvarDados();
-                atualizarDados();
+                atualizarResultados();
+                atualizarLancamentos();
             }
         }
 
-        // FUNÇÕES INVESTIMENTOS
-        function carregarInvestimentos() {
-            const saved = localStorage.getItem('investimentos');
-            if (saved) {
-                investimentos = JSON.parse(saved);
-            }
-            atualizarTabelaInvestimentos();
-        }
-
-        function salvarInvestimentos() {
-            localStorage.setItem('investimentos', JSON.stringify(investimentos));
-        }
-
+        // ============================================
+        // INVESTIMENTOS
+        // ============================================
         function adicionarInvestimento() {
-            const data = document.getElementById('dataInv').value;
-            const tipo = document.getElementById('tipoInv').value;
-            const valor = parseFloat(document.getElementById('valorInv').value);
-            const descricao = document.getElementById('descricaoInv').value;
+            const data = document.getElementById('investData').value;
+            const tipo = document.getElementById('investTipo').value.trim();
+            const valor = parseFloat(document.getElementById('investValor').value);
+            const rentabilidade = parseFloat(document.getElementById('investRent').value) || 0;
+            const descricao = document.getElementById('investDescricao').value.trim();
 
-            if (!data || !valor) {
-                mostrarErroInv('Preencha data e valor!');
+            if (!data || !tipo || !valor || valor <= 0) {
+                showAlert('investimentosAlert', 'Por favor, preencha os campos obrigatórios', 'error');
                 return;
             }
 
-            if (valor <= 0) {
-                mostrarErroInv('O valor deve ser maior que zero!');
-                return;
-            }
-
-            investimentos.push({
+            const investimento = {
                 id: Date.now(),
                 data,
                 tipo,
                 valor,
-                descricao,
-                timestamp: new Date().getTime()
-            });
+                rentabilidade,
+                descricao: descricao || 'Sem descrição'
+            };
 
-            salvarInvestimentos();
-            document.getElementById('msgInvSuccess').style.display = 'block';
-            setTimeout(() => document.getElementById('msgInvSuccess').style.display = 'none', 2000);
+            investimentos.push(investimento);
+            salvarDados();
 
-            // Limpar form
-            document.getElementById('dataInv').value = new Date().toISOString().split('T')[0];
-            document.getElementById('descricaoInv').value = '';
-            document.getElementById('valorInv').value = '';
+            // Limpar formulário
+            document.getElementById('investData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('investTipo').value = '';
+            document.getElementById('investValor').value = '';
+            document.getElementById('investRent').value = '';
+            document.getElementById('investDescricao').value = '';
 
-            atualizarTabelaInvestimentos();
+            showAlert('investimentosAlert', 'Investimento registrado com sucesso!', 'success');
+            atualizarResultados();
         }
 
         function deletarInvestimento(id) {
-            if (confirm('Deletar este investimento?')) {
-                investimentos = investimentos.filter(inv => inv.id !== id);
-                salvarInvestimentos();
-                atualizarTabelaInvestimentos();
+            if (confirm('Tem certeza que deseja deletar este investimento?')) {
+                investimentos = investimentos.filter(i => i.id !== id);
+                salvarDados();
+                atualizarResultados();
+                atualizarInvestimentos();
             }
         }
 
-        function atualizarTabelaInvestimentos() {
-            const tbody = document.getElementById('tbodyInv');
-            tbody.innerHTML = '';
-            let totalInv = 0;
+        // ============================================
+        // CATEGORIAS
+        // ============================================
+        function adicionarCategoria() {
+            const type = document.getElementById('novaCategoriaType').value;
+            const nome = document.getElementById('novaCategoriaNome').value.trim();
 
-            // Ordenar por data decrescente
-            const investimentosOrdenados = [...investimentos].sort((a, b) => new Date(b.data) - new Date(a.data));
+            if (!nome) {
+                showAlert('categoriasAlert', 'Por favor, preencha o nome da categoria', 'error');
+                return;
+            }
 
-            investimentosOrdenados.forEach(inv => {
-                totalInv += inv.valor;
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${formatarData(inv.data)}</td>
-                    <td>${inv.tipo}</td>
-                    <td>${inv.descricao}</td>
-                    <td style="color: #28a745; font-weight: 600;">+R$ ${inv.valor.toFixed(2).replace('.', ',')}</td>
-                    <td><button class="btn-small btn-danger" onclick="deletarInvestimento(${inv.id})">🗑️</button></td>
+            if (type === 'despesa') {
+                if (!categoriasDespesa.includes(nome)) {
+                    categoriasDespesa.push(nome);
+                    salvarDados();
+                    showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
+                    document.getElementById('novaCategoriaNome').value = '';
+                } else {
+                    showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
+                }
+            } else {
+                if (!categoriasReceita.includes(nome)) {
+                    categoriasReceita.push(nome);
+                    salvarDados();
+                    showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
+                    document.getElementById('novaCategoriaNome').value = '';
+                } else {
+                    showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
+                }
+            }
+        }
+
+        function deletarCategoria(nome, tipo) {
+            if (confirm(`Tem certeza que deseja deletar "${nome}"?`)) {
+                if (tipo === 'despesa') {
+                    categoriasDespesa = categoriasDespesa.filter(c => c !== nome);
+                } else {
+                    categoriasReceita = categoriasReceita.filter(c => c !== nome);
+                }
+                salvarDados();
+                atualizarCategorias();
+            }
+        }
+
+        // ============================================
+        // ATUALIZAR UI
+        // ============================================
+        function updateCategorias() {
+            const tipo = document.getElementById('lancamentoTipo').value;
+            const select = document.getElementById('lancamentoCategoria');
+            select.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+            const categorias = tipo === 'despesa' ? categoriasDespesa : categoriasReceita;
+            categorias.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function atualizarCategorias() {
+            const despesaDiv = document.getElementById('despesaCategories');
+            const receitaDiv = document.getElementById('receitaCategories');
+
+            despesaDiv.innerHTML = '';
+            categoriasDespesa.forEach(cat => {
+                despesaDiv.innerHTML += `
+                    <div class="category-item">
+                        <span>${cat}</span>
+                        <button class="btn btn-danger" onclick="deletarCategoria('${cat}', 'despesa')">Deletar</button>
+                    </div>
                 `;
             });
 
-            // Atualizar total
-            document.getElementById('totalInvestido').innerText = `R$ ${totalInv.toFixed(2).replace('.', ',')}`;
+            receitaDiv.innerHTML = '';
+            categoriasReceita.forEach(cat => {
+                receitaDiv.innerHTML += `
+                    <div class="category-item">
+                        <span>${cat}</span>
+                        <button class="btn btn-danger" onclick="deletarCategoria('${cat}', 'receita')">Deletar</button>
+                    </div>
+                `;
+            });
         }
 
-        function mostrarErroInv(msg) {
-            const el = document.getElementById('msgInvError');
-            el.innerText = '❌ ' + msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3000);
+        function atualizarResultados() {
+            const mesAtual = filtroMes;
+
+            let totalReceitas = 0;
+            let totalDespesas = 0;
+            const despesasPorCategoria = {};
+
+            lancamentos.forEach(l => {
+                if (l.data.startsWith(mesAtual)) {
+                    if (l.tipo === 'receita') {
+                        totalReceitas += l.valor;
+                    } else {
+                        totalDespesas += l.valor;
+                        despesasPorCategoria[l.categoria] = (despesasPorCategoria[l.categoria] || 0) + l.valor;
+                    }
+                }
+            });
+
+            let totalInvestimentos = investimentos.reduce((sum, i) => sum + i.valor, 0);
+
+            document.getElementById('totalReceitas').textContent = formatarMoeda(totalReceitas);
+            document.getElementById('totalDespesas').textContent = formatarMoeda(totalDespesas);
+            document.getElementById('saldoTotal').textContent = formatarMoeda(totalReceitas - totalDespesas);
+            document.getElementById('totalInvestimentos').textContent = formatarMoeda(totalInvestimentos);
+
+            // Gráfico de despesas
+            atualizarGrafico(despesasPorCategoria);
+
+            // Atualizar tabela
+            atualizarLancamentos();
         }
 
-        function limparTudo() {
-            if (confirm('⚠️ APAGAR TODOS OS DADOS? Isto é irreversível!')) {
-                if (confirm('Tem certeza? Esta ação não pode ser desfeita!')) {
-                    dados = [];
+        function atualizarLancamentos() {
+            const mesAtual = filtroMes;
+            const tbody = document.getElementById('lancamentosTbody');
+            const recentes = document.getElementById('receentesTbody');
+
+            const lancamentosFiltrados = lancamentos
+                .filter(l => l.data.startsWith(mesAtual))
+                .sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            tbody.innerHTML = '';
+            lancamentosFiltrados.forEach(l => {
+                const classe = l.tipo === 'receita' ? 'positive' : 'negative';
+                const data = new Date(l.data).toLocaleDateString('pt-BR');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${data}</td>
+                        <td>${l.descricao}</td>
+                        <td>${l.categoria}</td>
+                        <td>${l.tipo === 'receita' ? '💰 Receita' : '💸 Despesa'}</td>
+                        <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Tabela de recentes (últimos 10)
+            recentes.innerHTML = '';
+            lancamentos
+                .sort((a, b) => new Date(b.data) - new Date(a.data))
+                .slice(0, 10)
+                .forEach(l => {
+                    const classe = l.tipo === 'receita' ? 'positive' : 'negative';
+                    const data = new Date(l.data).toLocaleDateString('pt-BR');
+                    recentes.innerHTML += `
+                        <tr>
+                            <td>${data}</td>
+                            <td>${l.descricao}</td>
+                            <td>${l.categoria}</td>
+                            <td>${l.tipo === 'receita' ? '💰 Receita' : '💸 Despesa'}</td>
+                            <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function atualizarInvestimentos() {
+            const tbody = document.getElementById('investTbody');
+            tbody.innerHTML = '';
+
+            investimentos
+                .sort((a, b) => new Date(b.data) - new Date(a.data))
+                .forEach(i => {
+                    const data = new Date(i.data).toLocaleDateString('pt-BR');
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${data}</td>
+                            <td>${i.tipo}</td>
+                            <td>${i.descricao}</td>
+                            <td class="amount">R$ ${i.valor.toFixed(2)}</td>
+                            <td class="amount positive">${i.rentabilidade.toFixed(2)}%</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deletarInvestimento(${i.id})">Deletar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function atualizarGrafico(despesasPorCategoria) {
+            const ctx = document.getElementById('despesasChart').getContext('2d');
+
+            if (despesasChart) {
+                despesasChart.destroy();
+            }
+
+            const labels = Object.keys(despesasPorCategoria);
+            const valores = Object.values(despesasPorCategoria);
+
+            if (labels.length === 0) {
+                ctx.fillStyle = '#ccc';
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nenhuma despesa neste mês', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            const cores = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#fa709a', '#fee140'];
+
+            despesasChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: valores,
+                        backgroundColor: cores.slice(0, labels.length),
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // EXPORTAR/IMPORTAR
+        // ============================================
+        function exportarDados() {
+            const dados = {
+                lancamentos,
+                investimentos,
+                categoriasDespesa,
+                categoriasReceita,
+                exportadoEm: new Date().toISOString()
+            };
+
+            const json = JSON.stringify(dados, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `despesas-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+
+            showAlert('configAlert', 'Dados exportados com sucesso!', 'success');
+        }
+
+        function importarDados(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const dados = JSON.parse(e.target.result);
+
+                    lancamentos = dados.lancamentos || [];
+                    investimentos = dados.investimentos || [];
+                    categoriasDespesa = dados.categoriasDespesa || categoriasDespesa;
+                    categoriasReceita = dados.categoriasReceita || categoriasReceita;
+
                     salvarDados();
-                    atualizarDados();
+                    showAlert('configAlert', 'Dados importados com sucesso!', 'success');
+                    atualizarResultados();
+                    atualizarInvestimentos();
+                    atualizarCategorias();
+                } catch (error) {
+                    showAlert('configAlert', 'Erro ao importar arquivo: ' + error.message, 'error');
                 }
-            }
+            };
+            reader.readAsText(file);
         }
 
-        function exportarCSV() {
-            let csv = 'Data,Tipo,Categoria,Descrição,Valor\n';
-            dados.forEach(d => {
-                csv += `${d.data},${d.tipo},${d.categoria},"${d.descricao}",${d.valor}\n`;
+        function limparTodosDados() {
+            lancamentos = [];
+            investimentos = [];
+            salvarDados();
+            atualizarResultados();
+            atualizarInvestimentos();
+            showAlert('configAlert', 'Todos os dados foram removidos!', 'success');
+        }
+
+        // ============================================
+        // UTILITÁRIOS
+        // ============================================
+        function showTab(tabName) {
+            // Esconder todos os tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `despesas_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-        }
-
-        function abrir(aba) {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.getElementById(aba).classList.add('active');
-
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            // Mostrar tab selecionado
+            document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
+        }
 
-            // Renderizar gráficos quando aba Resultados é aberta
-            if (aba === 'dashboard') {
-                const mes = document.getElementById('mesFiltroResultados').value || document.getElementById('mesFiltro').value;
-                document.getElementById('mesFiltroResultados').value = mes;
-                atualizarDadosResultados();
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert active alert-${type}`;
+
+            setTimeout(() => {
+                alert.classList.remove('active');
+            }, 5000);
+        }
+
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',');
+        }
+
+        function filterByMonth() {
+            filtroMes = document.getElementById('filterMonth').value;
+            atualizarResultados();
+        }
+
+        // ============================================
+        // INICIALIZAÇÃO AO CARREGAR
+        // ============================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                usuarioLogado = user;
+                inicializarApp();
+            } else {
+                document.getElementById('loginContainer').classList.add('active');
+                document.getElementById('appContainer').classList.remove('active');
             }
-        }
-
-        function atualizarDadosResultados() {
-            const mes = document.getElementById('mesFiltroResultados').value;
-            const filtrados = dados.filter(d => d.data.startsWith(mes)).sort((a, b) => new Date(b.data) - new Date(a.data));
-
-            // Calcular totais
-            let receita = 0, despesa = 0, porCat = {};
-            filtrados.forEach(d => {
-                if (d.tipo === 'receita') receita += d.valor;
-                else {
-                    despesa += d.valor;
-                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
-                }
-            });
-
-            const saldo = receita - despesa;
-
-            // Atualizar cards
-            document.getElementById('totalReceitas').innerText = `R$ ${receita.toFixed(2).replace('.', ',')}`;
-            document.getElementById('totalDespesas').innerText = `R$ ${despesa.toFixed(2).replace('.', ',')}`;
-            document.getElementById('saldo').innerText = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
-            document.getElementById('saldo').style.color = saldo >= 0 ? '#007bff' : '#dc3545';
-
-            // Atualizar tabela de categorias
-            const tbodyC = document.getElementById('tbodyCategoria');
-            tbodyC.innerHTML = '';
-            Object.entries(porCat).forEach(([cat, val]) => {
-                const pct = despesa > 0 ? (val / despesa * 100).toFixed(1) : 0;
-                const row = tbodyC.insertRow();
-                row.innerHTML = `<td>${cat}</td><td>R$ ${val.toFixed(2).replace('.', ',')}</td><td>${pct}%</td>`;
-            });
-
-            // Atualizar gráfico
-            desenharGraficos(filtrados);
-        }
-
-        function mostrarErro(msg) {
-            const el = document.getElementById('msgError');
-            el.innerText = '❌ ' + msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3000);
-        }
-
-        function formatarData(d) {
-            return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
-        }
+        });
     </script>
 </body>
 </html>

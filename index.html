@@ -73,6 +73,11 @@
             color: #e2e8f0;
         }
 
+        .form-group input[type="date"] {
+            width: auto;
+            min-width: 150px;
+        }
+
         .form-group input:focus {
             outline: none;
             border-color: #22c55e;
@@ -673,19 +678,6 @@
                 </div>
             </div>
             <button class="btn btn-primary" onclick="adicionarLancamento()" style="width: 100%; margin-top: 10px;">Adicionar</button>
-            <h3>Recentes</h3>
-            <table id="recentes">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th class="amount">Valor</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody id="receentesTbody"></tbody>
-            </table>
         </div>
 
         <!-- POUPANÇA -->
@@ -1179,65 +1171,6 @@
                     </tr>
                 `;
             });
-
-            // Agrupar lançamentos por série de parcelas para exibição
-            const recentes = document.getElementById('receentesTbody');
-            recentes.innerHTML = '';
-
-            const lancamentosAgrupados = {};
-            lancamentos.forEach(l => {
-                if (l.parcelas > 1) {
-                    // Extrair a base da descrição (remove " (X/Y)" ou "Parcela X/Y")
-                    let baseDesc = l.descricao.replace(/ \(\d+\/\d+\)$/, '').replace(/^Parcela /, '');
-                    if (!baseDesc || baseDesc === 'Sem descrição') {
-                        baseDesc = l.categoria;
-                    }
-                    const chave = `${l.categoria}_${l.tipo}_${l.parcelas}_${baseDesc}`;
-
-                    if (!lancamentosAgrupados[chave]) {
-                        lancamentosAgrupados[chave] = {
-                            descricao: baseDesc,
-                            categoria: l.categoria,
-                            tipo: l.tipo,
-                            valor: 0,
-                            parcelas: l.parcelas,
-                            id: l.id,
-                            data: l.data
-                        };
-                    }
-                    lancamentosAgrupados[chave].valor += l.valor;
-                } else {
-                    // Lançamentos sem parcelas
-                    const chave = `single_${l.id}`;
-                    lancamentosAgrupados[chave] = {
-                        descricao: l.descricao,
-                        categoria: l.categoria,
-                        tipo: l.tipo,
-                        valor: l.valor,
-                        parcelas: 1,
-                        id: l.id,
-                        data: l.data
-                    };
-                }
-            });
-
-            Object.values(lancamentosAgrupados)
-                .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .slice(0, 10)
-                .forEach(l => {
-                    const classe = l.tipo === 'receita' ? 'positive' : 'negative';
-                    const data = new Date(l.data).toLocaleDateString('pt-BR');
-                    const parcelasText = l.parcelas > 1 ? ` ${l.parcelas}x` : '';
-                    recentes.innerHTML += `
-                        <tr>
-                            <td>${data}</td>
-                            <td>${l.descricao}${parcelasText}</td>
-                            <td>${l.categoria}</td>
-                            <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
-                            <td><button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button></td>
-                        </tr>
-                    `;
-                });
         }
 
         function atualizarInvestimentos() {

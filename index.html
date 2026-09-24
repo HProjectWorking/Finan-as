@@ -349,10 +349,21 @@
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px solid #eee;
+            gap: 10px;
         }
 
         .categoria-item:last-child {
             border-bottom: none;
+        }
+
+        .categoria-nome {
+            flex: 1;
+        }
+
+        .categoria-deletar {
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
@@ -965,8 +976,8 @@
             categoriasDespesa.forEach(cat => {
                 despesaDiv.innerHTML += `
                     <div class="categoria-item">
-                        <span>${cat}</span>
-                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deletarCategoria('${cat}', 'despesa')">Deletar</button>
+                        <span class="categoria-nome">${cat}</span>
+                        <button class="btn btn-danger categoria-deletar" onclick="deletarCategoria('${cat}', 'despesa')">Deletar</button>
                     </div>
                 `;
             });
@@ -975,8 +986,8 @@
             categoriasReceita.forEach(cat => {
                 receitaDiv.innerHTML += `
                     <div class="categoria-item">
-                        <span>${cat}</span>
-                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deletarCategoria('${cat}', 'receita')">Deletar</button>
+                        <span class="categoria-nome">${cat}</span>
+                        <button class="btn btn-danger categoria-deletar" onclick="deletarCategoria('${cat}', 'receita')">Deletar</button>
                     </div>
                 `;
             });
@@ -1094,14 +1105,14 @@
                 .sort((a, b) => new Date(b.data) - new Date(a.data))
                 .forEach(i => {
                     const data = new Date(i.data).toLocaleDateString('pt-BR');
-                    tbody.innerHTML += `
+                    tbody.innerHTML += \`
                         <tr>
-                            <td>${data}</td>
-                            <td>${i.tipo}</td>
-                            <td class="amount">R$ ${i.valor.toFixed(2)}</td>
-                            <td><button class="btn btn-danger" onclick="deletarInvestimento(${i.id})">Deletar</button></td>
+                            <td>\${data}</td>
+                            <td>\${i.tipo}</td>
+                            <td class="amount">R$ \${i.valor.toFixed(2)}</td>
+                            <td><button class="btn btn-danger" onclick="deletarInvestimento(\${i.id})">Deletar</button></td>
                         </tr>
-                    `;
+                    \`;
                 });
         }
 

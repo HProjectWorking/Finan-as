@@ -1135,9 +1135,12 @@
             const lancamentosAgrupados = {};
             lancamentos.forEach(l => {
                 if (l.parcelas > 1) {
-                    // Extrair a base da descrição (sem "Parcela X/Y")
-                    const baseDesc = l.descricao.split(' (')[0];
-                    const chave = `${l.categoria}_${l.tipo}_${baseDesc}`;
+                    // Extrair a base da descrição (remove " (X/Y)" ou "Parcela X/Y")
+                    let baseDesc = l.descricao.replace(/ \(\d+\/\d+\)$/, '').replace(/^Parcela /, '');
+                    if (!baseDesc || baseDesc === 'Sem descrição') {
+                        baseDesc = l.categoria;
+                    }
+                    const chave = `${l.categoria}_${l.tipo}_${l.parcelas}_${baseDesc}`;
 
                     if (!lancamentosAgrupados[chave]) {
                         lancamentosAgrupados[chave] = {

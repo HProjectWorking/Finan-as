@@ -149,28 +149,34 @@
 
         .tabs {
             display: flex;
-            border-bottom: 2px solid #e0e0e0;
-            background: #fafafa;
+            gap: 10px;
+            padding: 15px;
+            background: white;
             overflow-x: auto;
         }
 
         .tab-btn {
             flex: 1;
-            min-width: 80px;
-            padding: 12px 10px;
+            min-width: 100px;
+            padding: 12px 15px;
             border: none;
-            background: none;
+            background: #e8e8e8;
             cursor: pointer;
             font-size: 14px;
             color: #666;
             font-weight: 500;
-            border-bottom: 3px solid transparent;
+            border-radius: 8px;
             white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #d8d8d8;
         }
 
         .tab-btn.active {
-            color: #333;
-            border-bottom-color: #333;
+            color: white;
+            background: #333;
         }
 
         .tab-content {
@@ -391,6 +397,17 @@
                 justify-content: space-between;
             }
 
+            .tabs {
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .tab-btn {
+                min-width: 80px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
             .tab-content {
                 padding: 15px;
             }
@@ -495,10 +512,10 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="abrirTab(event, 'resultados')">📊 Resultados</button>
-            <button class="tab-btn" onclick="abrirTab(event, 'controle')">➕ Controle</button>
-            <button class="tab-btn" onclick="abrirTab(event, 'investimentos')">📈 Investimentos</button>
-            <button class="tab-btn" onclick="abrirTab(event, 'categorias')">🏷️ Categorias</button>
+            <button class="tab-btn active" onclick="abrirTab(event, 'resultados')">Resultados</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'controle')">Controle</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'investimentos')">Investimentos</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'categorias')">Categorias</button>
         </div>
 
         <!-- RESULTADOS -->

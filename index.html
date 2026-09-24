@@ -443,6 +443,11 @@
                 padding: 12px;
             }
 
+            .categoria-deletar {
+                width: auto !important;
+                padding: 2px 6px !important;
+            }
+
             table {
                 font-size: 12px;
             }
@@ -864,15 +869,38 @@
                 return;
             }
 
-            lancamentos.push({
-                id: Date.now(),
-                data,
-                tipo,
-                categoria,
-                valor,
-                descricao: descricao || 'Sem descrição',
-                parcelas: parcelas
-            });
+            // Se tem parcelas, criar um lançamento para cada mês
+            if (parcelas > 1) {
+                const dataInicial = new Date(data + 'T00:00:00');
+                const valorParcela = valor / parcelas;
+
+                for (let i = 0; i < parcelas; i++) {
+                    const novaData = new Date(dataInicial);
+                    novaData.setMonth(novaData.getMonth() + i);
+                    const dataFormatada = novaData.toISOString().split('T')[0];
+
+                    lancamentos.push({
+                        id: Date.now() + i,
+                        data: dataFormatada,
+                        tipo,
+                        categoria,
+                        valor: parseFloat(valorParcela.toFixed(2)),
+                        descricao: descricao ? `${descricao} (${i + 1}/${parcelas})` : `Parcela ${i + 1}/${parcelas}`,
+                        parcelas: parcelas
+                    });
+                }
+            } else {
+                // Se não tem parcelas, apenas 1 lançamento
+                lancamentos.push({
+                    id: Date.now(),
+                    data,
+                    tipo,
+                    categoria,
+                    valor,
+                    descricao: descricao || 'Sem descrição',
+                    parcelas: 1
+                });
+            }
 
             salvarDados();
 
@@ -883,7 +911,7 @@
             document.getElementById('lancamentoDescricao').value = '';
             document.getElementById('lancamentoParcelas').value = '';
 
-            alerta('controleAlert', 'Lançamento adicionado!', 'success');
+            alerta('controleAlert', `Lançamento com ${parcelas} parcela${parcelas > 1 ? 's' : ''} adicionado!`, 'success');
             atualizarResultados();
         }
 

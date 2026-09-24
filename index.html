@@ -873,12 +873,19 @@
             const userPath = `usuarios/${usuarioLogado.uid}/dados`;
 
             db.ref(userPath).on('value', (snapshot) => {
-                const dados = snapshot.val() || {};
+                const dados = snapshot.val();
 
-                lancamentos = dados.lancamentos || [];
-                investimentos = dados.investimentos || [];
-                categoriasDespesa = dados.categoriasDespesa || ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
-                categoriasReceita = dados.categoriasReceita || ['Salário', 'Freelance', 'Investimentos', 'Outros'];
+                // SE NÃO TEM DADOS NO FIREBASE, NÃO CARREGA
+                if (!dados) {
+                    console.log("📭 Nenhum dado no Firebase ainda");
+                    return;
+                }
+
+                // SÓ CARREGA DADOS QUE EXISTEM
+                if (dados.lancamentos) lancamentos = dados.lancamentos;
+                if (dados.investimentos) investimentos = dados.investimentos;
+                if (dados.categoriasDespesa) categoriasDespesa = dados.categoriasDespesa;
+                if (dados.categoriasReceita) categoriasReceita = dados.categoriasReceita;
 
                 updateCategorias();
                 atualizarResultados();
@@ -896,16 +903,25 @@
         function salvarDados() {
             if (!usuarioLogado) return;
 
+            // NÃO SALVA DADOS VAZIOS - EVITA PERDER INFORMAÇÕES
+            if (lancamentos.length === 0 && investimentos.length === 0) {
+                console.log("⚠️ Ignorando salvar dados vazios");
+                return;
+            }
+
             const userPath = `usuarios/${usuarioLogado.uid}/dados`;
             const dados = {
-                lancamentos,
-                investimentos,
+                lancamentos: lancamentos.length > 0 ? lancamentos : undefined,
+                investimentos: investimentos.length > 0 ? investimentos : undefined,
                 categoriasDespesa,
                 categoriasReceita,
                 ultimaAtualizacao: new Date().toISOString()
             };
 
-            db.ref(userPath).set(dados, (error) => {
+            // Remove campos undefined para não sobrescrever dados existentes
+            Object.keys(dados).forEach(key => dados[key] === undefined && delete dados[key]);
+
+            db.ref(userPath).update(dados, (error) => {
                 if (error) {
                     console.error("❌ Erro ao salvar:", error);
                     showAlert('controleAlert', 'Erro ao salvar dados: ' + error.message, 'error');

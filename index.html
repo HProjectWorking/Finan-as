@@ -466,7 +466,7 @@
 </head>
 <body>
     <!-- Login -->
-    <div class="login-container active" id="loginContainer">
+    <div class="login-container" id="loginContainer">
         <h1>💰 Despesas Financeiras</h1>
         <div class="alert" id="loginAlert"></div>
 
@@ -1162,6 +1162,9 @@
             if (user) {
                 usuarioLogado = user;
                 iniciar();
+            } else {
+                document.getElementById('loginContainer').classList.add('active');
+                document.getElementById('appContainer').classList.remove('active');
             }
         });
     </script>

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Despesas - Firebase</title>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <!-- Firebase 9+ (compat version - mais compatível) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -91,6 +91,11 @@
 
         .login-btn:hover {
             transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .toggle-mode {
@@ -201,6 +206,8 @@
             display: none;
             padding: 30px;
             flex: 1;
+            overflow-y: auto;
+            max-height: 70vh;
         }
 
         .tab-content.active {
@@ -368,21 +375,6 @@
             max-width: 500px;
         }
 
-        .filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filters input,
-        .filters select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
         .alert {
             padding: 15px;
             border-radius: 5px;
@@ -404,42 +396,6 @@
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-
-            .tabs {
-                flex-wrap: wrap;
-            }
-
-            .tab-btn {
-                flex: 1 1 auto;
-                min-width: 100px;
-            }
         }
 
         .month-picker {
@@ -477,20 +433,37 @@
             padding: 5px 10px;
             font-size: 12px;
         }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 auto;
+                min-width: 100px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- ============================================ -->
-    <!-- IMPORTANTE: Substitua as credenciais do Firebase pelas suas! -->
-    <!-- 1. Vá em: https://console.firebase.google.com/ -->
-    <!-- 2. Crie um novo projeto -->
-    <!-- 3. Clique em "Configurar o SDK do Web" -->
-    <!-- 4. Copie as credenciais abaixo e substitua: -->
-    <!-- ============================================ -->
-
     <!-- Login Container -->
     <div class="login-container active" id="loginContainer">
-        <h1>Controle de Despesas</h1>
+        <h1>💰 Controle de Despesas</h1>
 
         <div class="alert" id="loginAlert"></div>
 
@@ -503,7 +476,7 @@
                 <label>Senha:</label>
                 <input type="password" id="loginPassword" placeholder="Sua senha">
             </div>
-            <button class="login-btn" onclick="login()">Entrar</button>
+            <button class="login-btn" id="btnLogin" onclick="login()">Entrar</button>
             <div class="toggle-mode" onclick="toggleLoginMode()">Criar nova conta</div>
         </div>
 
@@ -520,7 +493,7 @@
                 <label>Confirme a Senha:</label>
                 <input type="password" id="registerPasswordConfirm" placeholder="Repita a senha">
             </div>
-            <button class="login-btn" onclick="register()">Criar Conta</button>
+            <button class="login-btn" id="btnRegister" onclick="register()">Criar Conta</button>
             <div class="toggle-mode" onclick="toggleLoginMode()">Voltar para login</div>
         </div>
     </div>
@@ -539,11 +512,11 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('resultados')">📊 Resultados</button>
-            <button class="tab-btn" onclick="showTab('controle')">➕ Controle</button>
-            <button class="tab-btn" onclick="showTab('investimentos')">📈 Investimentos</button>
-            <button class="tab-btn" onclick="showTab('categorias')">🏷️ Categorias</button>
-            <button class="tab-btn" onclick="showTab('config')">⚙️ Config</button>
+            <button class="tab-btn active" onclick="showTab(event, 'resultados')">📊 Resultados</button>
+            <button class="tab-btn" onclick="showTab(event, 'controle')">➕ Controle</button>
+            <button class="tab-btn" onclick="showTab(event, 'investimentos')">📈 Investimentos</button>
+            <button class="tab-btn" onclick="showTab(event, 'categorias')">🏷️ Categorias</button>
+            <button class="tab-btn" onclick="showTab(event, 'config')">⚙️ Config</button>
         </div>
 
         <!-- TAB: Resultados -->
@@ -554,8 +527,6 @@
                 <label>Mês:</label>
                 <input type="month" id="filterMonth" onchange="filterByMonth()">
             </div>
-
-            <div class="alert" id="resultadosAlert"></div>
 
             <div class="dashboard">
                 <div class="card positive">
@@ -748,25 +719,11 @@
 
             <div class="alert" id="configAlert"></div>
 
-            <h3>Exportar/Importar Dados</h3>
-            <p style="margin-bottom: 15px; color: #666;">Você pode baixar seus dados em JSON ou importar de um arquivo anterior.</p>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 30px;">
-                <button class="btn btn-success" onclick="exportarDados()">📥 Exportar Dados</button>
-                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importar Dados</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarDados(event)">
-            </div>
-
             <h3>Informações da Conta</h3>
             <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 15px;">
                 <p><strong>Email:</strong> <span id="userEmailDisplay">-</span></p>
                 <p><strong>UID:</strong> <span id="userUIDDisplay" style="font-family: monospace; font-size: 12px; word-break: break-all;">-</span></p>
-                <p><strong>Último acesso:</strong> <span id="lastLoginDisplay">-</span></p>
             </div>
-
-            <h3 style="margin-top: 30px; color: #f44336;">Zona de Perigo</h3>
-            <p style="margin-bottom: 15px; color: #666;">Essas ações não podem ser desfeitas.</p>
-            <button class="btn btn-danger" onclick="if(confirm('Tem certeza? Essa ação é irreversível!')) { limparTodosDados(); }">🗑️ Limpar Todos os Dados</button>
         </div>
     </div>
 
@@ -774,7 +731,6 @@
         // ============================================
         // CONFIGURAÇÃO DO FIREBASE
         // ============================================
-        // SUBSTITUA PELAS SUAS CREDENCIAIS!
         const firebaseConfig = {
             apiKey: "AIzaSyCaTj8hGvbXJerPHxKrZt5T5bJorJy8Qas",
             authDomain: "financas-46c16.firebaseapp.com",
@@ -789,6 +745,8 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
+
+        console.log("✅ Firebase inicializado com sucesso!");
 
         // ============================================
         // VARIÁVEIS GLOBAIS
@@ -820,13 +778,20 @@
                 return;
             }
 
+            document.getElementById('btnLogin').disabled = true;
+            document.getElementById('btnLogin').textContent = '⏳ Entrando...';
+
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     usuarioLogado = userCredential.user;
+                    console.log("✅ Login bem-sucedido:", usuarioLogado.email);
                     inicializarApp();
                 })
                 .catch(error => {
+                    console.error("❌ Erro de login:", error);
                     showAlert('loginAlert', 'Erro: ' + error.message, 'error');
+                    document.getElementById('btnLogin').disabled = false;
+                    document.getElementById('btnLogin').textContent = 'Entrar';
                 });
         }
 
@@ -850,13 +815,20 @@
                 return;
             }
 
+            document.getElementById('btnRegister').disabled = true;
+            document.getElementById('btnRegister').textContent = '⏳ Criando...';
+
             auth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     usuarioLogado = userCredential.user;
+                    console.log("✅ Conta criada:", usuarioLogado.email);
                     inicializarApp();
                 })
                 .catch(error => {
+                    console.error("❌ Erro ao criar conta:", error);
                     showAlert('loginAlert', 'Erro: ' + error.message, 'error');
+                    document.getElementById('btnRegister').disabled = false;
+                    document.getElementById('btnRegister').textContent = 'Criar Conta';
                 });
         }
 
@@ -884,27 +856,22 @@
             document.getElementById('userEmailDisplay').textContent = usuarioLogado.email;
             document.getElementById('userUIDDisplay').textContent = usuarioLogado.uid;
 
-            // Definir data de hoje como padrão
             const hoje = new Date().toISOString().split('T')[0];
             document.getElementById('lancamentoData').value = hoje;
             document.getElementById('investData').value = hoje;
-
-            // Definir mês atual no filtro
             document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
 
-            // Carregar dados do Firebase
             carregarDados();
         }
 
         // ============================================
-        // FIRESTORE: CARREGAR DADOS
+        // CARREGAR DADOS
         // ============================================
         function carregarDados() {
             if (!usuarioLogado) return;
 
             const userPath = `usuarios/${usuarioLogado.uid}/dados`;
 
-            // Escutar mudanças em tempo real
             db.ref(userPath).on('value', (snapshot) => {
                 const dados = snapshot.val() || {};
 
@@ -913,17 +880,18 @@
                 categoriasDespesa = dados.categoriasDespesa || ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
                 categoriasReceita = dados.categoriasReceita || ['Salário', 'Freelance', 'Investimentos', 'Outros'];
 
-                // Atualizar UI
                 updateCategorias();
                 atualizarResultados();
                 atualizarLancamentos();
                 atualizarInvestimentos();
                 atualizarCategorias();
+
+                console.log("✅ Dados carregados com sucesso!");
             });
         }
 
         // ============================================
-        // FIRESTORE: SALVAR DADOS
+        // SALVAR DADOS
         // ============================================
         function salvarDados() {
             if (!usuarioLogado) return;
@@ -939,7 +907,10 @@
 
             db.ref(userPath).set(dados, (error) => {
                 if (error) {
+                    console.error("❌ Erro ao salvar:", error);
                     showAlert('controleAlert', 'Erro ao salvar dados: ' + error.message, 'error');
+                } else {
+                    console.log("✅ Dados salvos!");
                 }
             });
         }
@@ -971,7 +942,6 @@
             lancamentos.push(lancamento);
             salvarDados();
 
-            // Limpar formulário
             document.getElementById('lancamentoData').value = new Date().toISOString().split('T')[0];
             document.getElementById('lancamentoTipo').value = '';
             document.getElementById('lancamentoCategoria').value = '';
@@ -1019,7 +989,6 @@
             investimentos.push(investimento);
             salvarDados();
 
-            // Limpar formulário
             document.getElementById('investData').value = new Date().toISOString().split('T')[0];
             document.getElementById('investTipo').value = '';
             document.getElementById('investValor').value = '';
@@ -1057,6 +1026,7 @@
                     salvarDados();
                     showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
                     document.getElementById('novaCategoriaNome').value = '';
+                    atualizarCategorias();
                 } else {
                     showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
                 }
@@ -1066,6 +1036,7 @@
                     salvarDados();
                     showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
                     document.getElementById('novaCategoriaNome').value = '';
+                    atualizarCategorias();
                 } else {
                     showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
                 }
@@ -1148,10 +1119,7 @@
             document.getElementById('saldoTotal').textContent = formatarMoeda(totalReceitas - totalDespesas);
             document.getElementById('totalInvestimentos').textContent = formatarMoeda(totalInvestimentos);
 
-            // Gráfico de despesas
             atualizarGrafico(despesasPorCategoria);
-
-            // Atualizar tabela
             atualizarLancamentos();
         }
 
@@ -1182,7 +1150,6 @@
                 `;
             });
 
-            // Tabela de recentes (últimos 10)
             recentes.innerHTML = '';
             lancamentos
                 .sort((a, b) => new Date(b.data) - new Date(a.data))
@@ -1274,68 +1241,9 @@
         }
 
         // ============================================
-        // EXPORTAR/IMPORTAR
-        // ============================================
-        function exportarDados() {
-            const dados = {
-                lancamentos,
-                investimentos,
-                categoriasDespesa,
-                categoriasReceita,
-                exportadoEm: new Date().toISOString()
-            };
-
-            const json = JSON.stringify(dados, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `despesas-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-
-            showAlert('configAlert', 'Dados exportados com sucesso!', 'success');
-        }
-
-        function importarDados(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const dados = JSON.parse(e.target.result);
-
-                    lancamentos = dados.lancamentos || [];
-                    investimentos = dados.investimentos || [];
-                    categoriasDespesa = dados.categoriasDespesa || categoriasDespesa;
-                    categoriasReceita = dados.categoriasReceita || categoriasReceita;
-
-                    salvarDados();
-                    showAlert('configAlert', 'Dados importados com sucesso!', 'success');
-                    atualizarResultados();
-                    atualizarInvestimentos();
-                    atualizarCategorias();
-                } catch (error) {
-                    showAlert('configAlert', 'Erro ao importar arquivo: ' + error.message, 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function limparTodosDados() {
-            lancamentos = [];
-            investimentos = [];
-            salvarDados();
-            atualizarResultados();
-            atualizarInvestimentos();
-            showAlert('configAlert', 'Todos os dados foram removidos!', 'success');
-        }
-
-        // ============================================
         // UTILITÁRIOS
         // ============================================
-        function showTab(tabName) {
-            // Esconder todos os tabs
+        function showTab(event, tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1343,7 +1251,6 @@
                 btn.classList.remove('active');
             });
 
-            // Mostrar tab selecionado
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }

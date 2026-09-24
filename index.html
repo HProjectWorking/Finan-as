@@ -22,7 +22,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            background: #0f1419;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -31,13 +31,14 @@
         }
 
         .login-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: #1a1f2e;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             padding: 40px;
             width: 100%;
             max-width: 400px;
             display: none;
+            border: 1px solid #2d3748;
         }
 
         .login-container.active {
@@ -45,9 +46,10 @@
         }
 
         .login-container h1 {
-            color: #333;
+            color: #22c55e;
             margin-bottom: 30px;
             text-align: center;
+            font-size: 28px;
         }
 
         .form-group {
@@ -57,27 +59,30 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #cbd5e1;
             font-weight: 500;
         }
 
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid #2d3748;
             border-radius: 5px;
             font-size: 14px;
+            background: #2d3748;
+            color: #e2e8f0;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #333;
+            border-color: #22c55e;
+            background: #374151;
         }
 
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: #333;
+            background: #22c55e;
             color: white;
             border: none;
             border-radius: 5px;
@@ -89,25 +94,26 @@
         }
 
         .login-btn:hover {
-            background: #555;
+            background: #16a34a;
         }
 
         .toggle-mode {
             text-align: center;
-            color: #333;
+            color: #22c55e;
             cursor: pointer;
             font-size: 14px;
         }
 
         .app-container {
-            background: white;
+            background: #1a1f2e;
             border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             width: 100%;
             max-width: 1200px;
             display: none;
             overflow: hidden;
             flex-direction: column;
+            border: 1px solid #2d3748;
         }
 
         .app-container.active {
@@ -115,44 +121,49 @@
         }
 
         .header {
-            background: #333;
+            background: linear-gradient(135deg, #0f4c2b 0%, #1a1f2e 100%);
             color: white;
             padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #22c55e;
         }
 
         .header h1 {
             font-size: 24px;
+            color: #22c55e;
         }
 
         .header-right {
             display: flex;
             gap: 20px;
             align-items: center;
+            color: #cbd5e1;
         }
 
         .logout-btn {
-            background: #666;
+            background: #ef4444;
             color: white;
             border: none;
             padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            transition: background 0.3s;
         }
 
         .logout-btn:hover {
-            background: #888;
+            background: #dc2626;
         }
 
         .tabs {
             display: flex;
             gap: 10px;
             padding: 15px;
-            background: white;
+            background: #0f1419;
             overflow-x: auto;
+            border-bottom: 1px solid #2d3748;
         }
 
         .tab-btn {
@@ -160,10 +171,10 @@
             min-width: 100px;
             padding: 12px 15px;
             border: none;
-            background: #e8e8e8;
+            background: #2d3748;
             cursor: pointer;
             font-size: 14px;
-            color: #666;
+            color: #94a3b8;
             font-weight: 500;
             border-radius: 8px;
             white-space: nowrap;
@@ -171,12 +182,14 @@
         }
 
         .tab-btn:hover {
-            background: #d8d8d8;
+            background: #3d4756;
+            color: #cbd5e1;
         }
 
         .tab-btn.active {
-            color: white;
-            background: #333;
+            color: #0f1419;
+            background: #22c55e;
+            font-weight: 600;
         }
 
         .tab-content {
@@ -184,6 +197,7 @@
             padding: 20px;
             flex: 1;
             overflow-y: auto;
+            color: #e2e8f0;
         }
 
         .tab-content.active {
@@ -193,6 +207,17 @@
         .form-group select {
             width: 100%;
             padding: 10px;
+            background: #2d3748;
+            color: #e2e8f0;
+            border: 2px solid #2d3748;
+            border-radius: 5px;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #22c55e;
+            background: #374151;
+        }
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
@@ -211,24 +236,26 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.3s;
         }
 
         .btn-primary {
-            background: #333;
+            background: #22c55e;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #555;
+            background: #16a34a;
         }
 
         .btn-danger {
-            background: #e74c3c;
+            background: #ef4444;
             color: white;
+            transition: background 0.3s;
         }
 
         .btn-danger:hover {
-            background: #c0392b;
+            background: #dc2626;
         }
 
         table {
@@ -238,16 +265,22 @@
         }
 
         th {
-            background: #f0f0f0;
+            background: #2d3748;
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            border-bottom: 2px solid #ddd;
+            border-bottom: 2px solid #22c55e;
+            color: #cbd5e1;
         }
 
         td {
             padding: 12px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #3d4756;
+            color: #e2e8f0;
+        }
+
+        tr:hover {
+            background: #3d4756;
         }
 
         .amount {
@@ -256,11 +289,11 @@
         }
 
         .positive {
-            color: #27ae60;
+            color: #22c55e !important;
         }
 
         .negative {
-            color: #e74c3c;
+            color: #ef4444 !important;
         }
 
         .dashboard {
@@ -271,14 +304,22 @@
         }
 
         .card {
-            background: #f9f9f9;
+            background: #2d3748;
             padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid #333;
+            border-left: 4px solid #22c55e;
+        }
+
+        .card:nth-child(2) {
+            border-left-color: #ef4444;
+        }
+
+        .card:nth-child(4) {
+            border-left-color: #fbbf24;
         }
 
         .card-title {
-            color: #666;
+            color: #94a3b8;
             font-size: 14px;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -288,7 +329,7 @@
         .card-value {
             font-size: 28px;
             font-weight: bold;
-            color: #333;
+            color: #e2e8f0;
         }
 
         .alert {
@@ -303,15 +344,15 @@
         }
 
         .alert-success {
-            background: #d5f4e6;
-            color: #27ae60;
-            border: 1px solid #27ae60;
+            background: #0f3a1e;
+            color: #22c55e;
+            border: 1px solid #22c55e;
         }
 
         .alert-error {
-            background: #fadbd8;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
+            background: #3f0a0a;
+            color: #ef4444;
+            border: 1px solid #ef4444;
         }
 
         .month-picker {
@@ -321,30 +362,43 @@
             margin-bottom: 20px;
         }
 
+        .month-picker label {
+            color: #cbd5e1;
+        }
+
         .month-picker input {
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 2px solid #2d3748;
             border-radius: 5px;
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+
+        .month-picker input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
             font-size: 14px;
         }
 
         h2 {
-            color: #333;
+            color: #22c55e;
             margin-bottom: 20px;
             font-size: 20px;
         }
 
         h3 {
-            color: #333;
+            color: #fbbf24;
             margin-top: 20px;
             margin-bottom: 15px;
             font-size: 16px;
         }
 
         .resumo-container {
-            background: #f9f9f9;
+            background: #2d3748;
             padding: 15px;
             border-radius: 10px;
+            border-left: 4px solid #fbbf24;
             border-left: 4px solid #333;
             margin-top: 20px;
         }

@@ -1116,7 +1116,7 @@
             lancamentosFiltrados.forEach(l => {
                 const classe = l.tipo === 'receita' ? 'positive' : 'negative';
                 const data = new Date(l.data).toLocaleDateString('pt-BR');
-                const parcelasText = l.parcelas > 1 ? ` (${l.parcelas}x)` : '';
+                const parcelasText = l.parcelas > 1 ? ` ${l.parcelas}x` : '';
                 tbody.innerHTML += `
                     <tr>
                         <td>${data}</td>
@@ -1128,21 +1128,57 @@
                 `;
             });
 
+            // Agrupar lançamentos por série de parcelas para exibição
             const recentes = document.getElementById('receentesTbody');
             recentes.innerHTML = '';
-            lancamentos
+
+            const lancamentosAgrupados = {};
+            lancamentos.forEach(l => {
+                if (l.parcelas > 1) {
+                    // Extrair a base da descrição (sem "Parcela X/Y")
+                    const baseDesc = l.descricao.split(' (')[0];
+                    const chave = `${l.categoria}_${l.tipo}_${baseDesc}`;
+
+                    if (!lancamentosAgrupados[chave]) {
+                        lancamentosAgrupados[chave] = {
+                            descricao: baseDesc,
+                            categoria: l.categoria,
+                            tipo: l.tipo,
+                            valor: 0,
+                            parcelas: l.parcelas,
+                            id: l.id,
+                            data: l.data
+                        };
+                    }
+                    lancamentosAgrupados[chave].valor += l.valor;
+                } else {
+                    // Lançamentos sem parcelas
+                    const chave = `single_${l.id}`;
+                    lancamentosAgrupados[chave] = {
+                        descricao: l.descricao,
+                        categoria: l.categoria,
+                        tipo: l.tipo,
+                        valor: l.valor,
+                        parcelas: 1,
+                        id: l.id,
+                        data: l.data
+                    };
+                }
+            });
+
+            Object.values(lancamentosAgrupados)
                 .sort((a, b) => new Date(b.data) - new Date(a.data))
                 .slice(0, 10)
                 .forEach(l => {
                     const classe = l.tipo === 'receita' ? 'positive' : 'negative';
                     const data = new Date(l.data).toLocaleDateString('pt-BR');
-                    const parcelasText = l.parcelas > 1 ? ` (${l.parcelas}x)` : '';
+                    const parcelasText = l.parcelas > 1 ? ` ${l.parcelas}x` : '';
                     recentes.innerHTML += `
                         <tr>
                             <td>${data}</td>
-                            <td>${l.descricao}</td>
+                            <td>${l.descricao}${parcelasText}</td>
                             <td>${l.categoria}</td>
-                            <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}${parcelasText}</td>
+                            <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
                             <td><button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button></td>
                         </tr>
                     `;

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Despesas - Simples</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+
+        .content-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 10px;
+            border-top: 2px solid #ddd;
+            border-bottom: 2px solid #ddd;
+            overflow-x: auto;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .tabs:last-of-type {
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 14px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            border-right: 1px solid #f0f0f0;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #f9f9f9;
+            color: #28a745;
+        }
+
+        .tab-btn.active {
+            color: #28a745;
+            background: #f9fff9;
+            font-weight: 700;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #28a745;
+            background: #f9fff9;
+        }
+
+        .btn {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .btn:active { background: #218838; transform: scale(0.98); }
+        .btn-danger { background: #dc3545; }
+        .btn-small { width: auto; padding: 8px 12px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: 600; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .card {
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            text-align: center;
+        }
+
+        .card-label { font-size: 11px; color: #666; margin-bottom: 5px; }
+        .card-value { font-size: 18px; font-weight: 600; }
+        .card-receita { background: #f9fff9; border-color: #28a745; }
+        .card-despesa { background: #fff9f9; border-color: #dc3545; }
+        .card-saldo { background: #f0f9ff; border-color: #007bff; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .chart-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .msg { padding: 12px; border-radius: 5px; margin-bottom: 15px; display: none; font-size: 13px; }
+        .msg-success { background: #d4edda; color: #155724; }
+        .msg-error { background: #f8d7da; color: #721c24; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Controle de Despesas</h1>
+            <p style="font-size: 13px; opacity: 0.9; margin: 5px 0 0 0;">Seus dados são salvos automaticamente</p>
+        </div>
+
+        <div class="content-box">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="abrir('dashboard')">📈 Resultados</button>
+                <button class="tab-btn" onclick="abrir('investimentos')">💰 Investimentos</button>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn" onclick="abrir('controle')">📊 Controle</button>
+                <button class="tab-btn" onclick="abrir('categorias')">🏷️ Categorias</button>
+                <button class="tab-btn" onclick="abrir('config')">⚙️ Config</button>
+            </div>
+
+            <!-- CONTROLE -->
+            <div id="controle" class="section">
+                <div class="msg msg-success" id="msgSuccess">✅ Lançamento adicionado!</div>
+                <div class="msg msg-error" id="msgError"></div>
+
+                <div class="input-group">
+                    <label>📅 Filtrar por mês</label>
+                    <input type="month" id="mesFiltro" onchange="atualizarDados()" />
+                </div>
+
+                <h3 style="font-size: 16px; margin-bottom: 15px; margin-top: 20px;">Novo Lançamento</h3>
+
+                <div class="input-group">
+                    <label>Data</label>
+                    <input type="date" id="data" />
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Tipo</label>
+                        <select id="tipo">
+                            <option value="despesa">📉 Despesa</option>
+                            <option value="receita">📈 Receita</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="valor" placeholder="0.00" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <select id="categoria">
+                        <option>Alimentação</option>
+                        <option>Transporte</option>
+                        <option>Saúde</option>
+                        <option>Moradia</option>
+                        <option>Educação</option>
+                        <option>Lazer</option>
+                        <option>Outro</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Almoço no restaurante" />
+                </div>
+
+                <button class="btn" onclick="adicionar()">➕ Adicionar Lançamento</button>
+
+                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Últimos Lançamentos</h3>
+                <table id="tabela">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Categoria</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="section active">
+                <div class="msg msg-error" id="msgSemDados" style="display: none;">ℹ️ Nenhum lançamento no período selecionado</div>
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Resumo do Mês</h3>
+
+                <div class="input-group">
+                    <label>📅 Filtrar por mês</label>
+                    <input type="month" id="mesFiltroResultados" onchange="atualizarDadosResultados()" />
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card card-receita">
+                        <div class="card-label">Total Receitas</div>
+                        <div class="card-value" id="totalReceitas">R$ 0</div>
+                    </div>
+                    <div class="card card-despesa">
+                        <div class="card-label">Total Despesas</div>
+                        <div class="card-value" id="totalDespesas">R$ 0</div>
+                    </div>
+                    <div class="card card-saldo">
+                        <div class="card-label">Saldo</div>
+                        <div class="card-value" id="saldo">R$ 0</div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Despesas por Categoria (Tabela)</h3>
+                <table id="tabelaCategorias">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Total</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCategoria"></tbody>
+                </table>
+
+                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">📊 Despesas por Categoria (Gráfico)</h3>
+                <div class="chart-container" id="chartCategoria"></div>
+            </div>
+
+            <!-- INVESTIMENTOS -->
+            <div id="investimentos" class="section">
+                <div class="msg msg-success" id="msgInvSuccess">✅ Investimento adicionado!</div>
+                <div class="msg msg-error" id="msgInvError"></div>
+
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Novo Investimento</h3>
+
+                <div class="input-group">
+                    <label>Data</label>
+                    <input type="date" id="dataInv" />
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Tipo</label>
+                        <select id="tipoInv">
+                            <option value="Poupança">🏦 Poupança</option>
+                            <option value="Ações">📈 Ações</option>
+                            <option value="Criptomoedas">💎 Criptomoedas</option>
+                            <option value="Fundo">💼 Fundo</option>
+                            <option value="Outro">📌 Outro</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="valorInv" placeholder="0.00" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <input type="text" id="descricaoInv" placeholder="Ex: Investimento inicial" />
+                </div>
+
+                <button class="btn" onclick="adicionarInvestimento()">➕ Adicionar Investimento</button>
+
+                <div class="dashboard-grid" style="margin-top: 30px; margin-bottom: 30px;">
+                    <div class="card card-receita">
+                        <div class="card-label">Total Investido</div>
+                        <div class="card-value" id="totalInvestido">R$ 0</div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Seus Investimentos</h3>
+                <table id="tabelaInv">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyInv"></tbody>
+                </table>
+            </div>
+
+            <!-- CATEGORIAS -->
+            <div id="categorias" class="section">
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Gerenciar Categorias</h3>
+
+                <div class="input-group">
+                    <label>Adicionar Nova Categoria</label>
+                    <input type="text" id="novaCategoria" placeholder="Ex: Viagem, Compras, etc" />
+                </div>
+
+                <button class="btn" onclick="adicionarCategoria()">➕ Adicionar Categoria</button>
+
+                <h3 style="font-size: 16px; margin-top: 30px; margin-bottom: 15px;">Categorias Atuais</h3>
+                <div id="categoriasList" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
+            </div>
+
+            <!-- CONFIG -->
+            <div id="config" class="section">
+                <h3 style="font-size: 16px; margin-bottom: 15px;">Configurações</h3>
+
+                <button class="btn-small" onclick="exportarCSV()">📥 Exportar CSV</button>
+                <button class="btn-small btn-danger" onclick="limparTudo()">🗑️ Limpar Tudo</button>
+
+                <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>ℹ️ Informações:</strong><br>
+                    • Dados salvos localmente no seu navegador<br>
+                    • Funciona offline<br>
+                    • Nenhum dados é enviado para servidor
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dados = [];
+        let categorias = ['Alimentação', 'Transporte', 'Saúde', 'Moradia', 'Educação', 'Lazer', 'Outro'];
+        let investimentos = [];
+
+        // Init
+        window.addEventListener('load', () => {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data').value = hoje;
+            document.getElementById('dataInv').value = hoje;
+            document.getElementById('mesFiltro').value = hoje.slice(0, 7);
+            document.getElementById('mesFiltroResultados').value = hoje.slice(0, 7);
+
+            carregarCategorias();
+            carregarDados(); // Já adiciona dados de teste se vazio
+            carregarInvestimentos();
+        });
+
+        // DADOS DE TESTE - remover após validar
+        function adicionarDadosTeste() {
+            if (dados.length > 0) return; // Só adiciona se vazio
+
+            const hoje = new Date();
+            const mesAtual = hoje.toISOString().slice(0, 7);
+
+            // Dados de teste
+            dados = [
+                { id: 1, data: mesAtual + '-01', tipo: 'receita', valor: 3000, categoria: 'Salário', descricao: 'Salário', timestamp: Date.now() },
+                { id: 2, data: mesAtual + '-05', tipo: 'despesa', valor: 800, categoria: 'Moradia', descricao: 'Aluguel', timestamp: Date.now() },
+                { id: 3, data: mesAtual + '-07', tipo: 'despesa', valor: 200, categoria: 'Alimentação', descricao: 'Supermercado', timestamp: Date.now() },
+                { id: 4, data: mesAtual + '-10', tipo: 'despesa', valor: 150, categoria: 'Transporte', descricao: 'Combustível', timestamp: Date.now() },
+                { id: 5, data: mesAtual + '-12', tipo: 'despesa', valor: 100, categoria: 'Saúde', descricao: 'Farmácia', timestamp: Date.now() },
+                { id: 6, data: mesAtual + '-15', tipo: 'receita', valor: 500, categoria: 'Extra', descricao: 'Freelance', timestamp: Date.now() }
+            ];
+            salvarDados();
+            console.log('Dados de teste adicionados');
+        }
+
+        function carregarCategorias() {
+            const saved = localStorage.getItem('categorias');
+            if (saved) {
+                categorias = JSON.parse(saved);
+            }
+            atualizarSelectCategorias();
+            atualizarListaCategorias();
+        }
+
+        function salvarCategorias() {
+            localStorage.setItem('categorias', JSON.stringify(categorias));
+        }
+
+        function adicionarCategoria() {
+            const input = document.getElementById('novaCategoria');
+            const cat = input.value.trim();
+
+            if (!cat) {
+                alert('Digite o nome da categoria!');
+                return;
+            }
+
+            if (categorias.includes(cat)) {
+                alert('Esta categoria já existe!');
+                return;
+            }
+
+            categorias.push(cat);
+            salvarCategorias();
+            input.value = '';
+            atualizarSelectCategorias();
+            atualizarListaCategorias();
+        }
+
+        function deletarCategoria(cat) {
+            if (confirm(`Deletar categoria "${cat}"?`)) {
+                categorias = categorias.filter(c => c !== cat);
+                salvarCategorias();
+                atualizarSelectCategorias();
+                atualizarListaCategorias();
+            }
+        }
+
+        function atualizarSelectCategorias() {
+            const select = document.getElementById('categoria');
+            const valor = select.value;
+            select.innerHTML = '';
+            categorias.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.innerText = cat;
+                select.appendChild(option);
+            });
+            select.value = valor || categorias[0];
+        }
+
+        function atualizarListaCategorias() {
+            const lista = document.getElementById('categoriasList');
+            lista.innerHTML = '';
+            categorias.forEach(cat => {
+                const tag = document.createElement('div');
+                tag.style.cssText = 'background: #f0f0f0; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
+                tag.innerHTML = `
+                    ${cat}
+                    <button onclick="deletarCategoria('${cat}')" style="background: none; border: none; color: #dc3545; cursor: pointer; font-weight: 600; padding: 0; font-size: 14px;">✕</button>
+                `;
+                lista.appendChild(tag);
+            });
+        }
+
+        function carregarDados() {
+            const saved = localStorage.getItem('despesas');
+            if (saved) {
+                dados = JSON.parse(saved);
+            }
+            // Se não houver dados, adiciona dados de teste
+            if (dados.length === 0) {
+                adicionarDadosTeste();
+            }
+            atualizarDados();
+        }
+
+        function salvarDados() {
+            localStorage.setItem('despesas', JSON.stringify(dados));
+        }
+
+        function adicionar() {
+            const data = document.getElementById('data').value;
+            const tipo = document.getElementById('tipo').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const categoria = document.getElementById('categoria').value;
+            const descricao = document.getElementById('descricao').value;
+
+            if (!data || !valor) {
+                mostrarErro('Preencha data e valor!');
+                return;
+            }
+
+            if (valor <= 0) {
+                mostrarErro('O valor deve ser maior que zero!');
+                return;
+            }
+
+            dados.push({
+                id: Date.now(),
+                data,
+                tipo,
+                valor,
+                categoria,
+                descricao,
+                timestamp: new Date().getTime()
+            });
+
+            salvarDados();
+            document.getElementById('msgSuccess').style.display = 'block';
+            setTimeout(() => document.getElementById('msgSuccess').style.display = 'none', 2000);
+
+            // Limpar form
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            document.getElementById('descricao').value = '';
+            document.getElementById('valor').value = '';
+
+            atualizarDados();
+        }
+
+        function atualizarDados() {
+            const mes = document.getElementById('mesFiltro').value;
+            const filtrados = dados.filter(d => d.data.startsWith(mes)).sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            // Atualizar tabela
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
+            filtrados.forEach(d => {
+                const row = tbody.insertRow();
+                const sinal = d.tipo === 'despesa' ? '-' : '+';
+                const cor = d.tipo === 'despesa' ? '#dc3545' : '#28a745';
+                row.innerHTML = `
+                    <td>${formatarData(d.data)}</td>
+                    <td>${d.tipo === 'despesa' ? '📉' : '📈'}</td>
+                    <td>${d.categoria}</td>
+                    <td>${d.descricao}</td>
+                    <td style="color: ${cor}; font-weight: 600;">${sinal}R$ ${d.valor.toFixed(2).replace('.', ',')}</td>
+                    <td><button class="btn-small btn-danger" onclick="deletar(${d.id})">🗑️</button></td>
+                `;
+            });
+
+            // Calcular totais
+            let receita = 0, despesa = 0, porCat = {};
+            filtrados.forEach(d => {
+                if (d.tipo === 'receita') receita += d.valor;
+                else {
+                    despesa += d.valor;
+                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
+                }
+            });
+
+            const saldo = receita - despesa;
+            document.getElementById('totalReceitas').innerText = `R$ ${receita.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalDespesas').innerText = `R$ ${despesa.toFixed(2).replace('.', ',')}`;
+            document.getElementById('saldo').innerText = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
+            document.getElementById('saldo').style.color = saldo >= 0 ? '#007bff' : '#dc3545';
+
+            // Tabela de categorias
+            const tbodyC = document.getElementById('tbodyCategoria');
+            tbodyC.innerHTML = '';
+            Object.entries(porCat).forEach(([cat, val]) => {
+                const pct = despesa > 0 ? (val / despesa * 100).toFixed(1) : 0;
+                const row = tbodyC.insertRow();
+                row.innerHTML = `<td>${cat}</td><td>R$ ${val.toFixed(2).replace('.', ',')}</td><td>${pct}%</td>`;
+            });
+
+            // Gráficos - desenhar com SVG
+            desenharGraficos(filtrados);
+        }
+
+        function desenharGraficos(filtrados) {
+            const msgSemDados = document.getElementById('msgSemDados');
+
+            if (!filtrados || filtrados.length === 0) {
+                if (msgSemDados) msgSemDados.style.display = 'block';
+                document.getElementById('chartCategoria').innerHTML = '';
+                return;
+            }
+
+            if (msgSemDados) msgSemDados.style.display = 'none';
+
+            // GRÁFICO: Pizza - Despesas por Categoria
+            const porCat = {};
+            filtrados.forEach(d => {
+                if (d.tipo === 'despesa') {
+                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
+                }
+            });
+
+            const categorias = Object.keys(porCat);
+            const valores = Object.values(porCat);
+
+            if (categorias.length > 0) {
+                desenharPizza('chartCategoria', categorias, valores);
+            } else {
+                document.getElementById('chartCategoria').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">Sem despesas para exibir</div>';
+            }
+        }
+
+        function desenharPizza(containerId, labels, valores) {
+            const container = document.getElementById(containerId);
+            const width = container.clientWidth || 500;
+            const height = container.clientHeight || 300;
+
+            // Margins e espaço útil do gráfico
+            const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = Math.min(height - margin.top - margin.bottom, 200); // Máximo 200px
+            const chartY = margin.top + (height - margin.top - margin.bottom - chartHeight) / 2; // Centralizar
+
+            // Encontrar min/max dos valores para escala apropriada
+            const minVal = Math.min(...valores, 0);
+            const maxVal = Math.max(...valores, 0);
+            const range = maxVal - minVal || 100; // Mínimo de 100 para não quebrar escala
+
+            // Calcular um múltiplo de 500 para escala redonda
+            let maxRound = 500;
+            if (maxVal > 0) {
+                maxRound = Math.ceil(maxVal / 500) * 500;
+            }
+            let minRound = 0;
+            if (minVal < 0) {
+                minRound = -Math.ceil(Math.abs(minVal) / 500) * 500;
+            }
+            const rangeRound = maxRound - minRound || 100;
+
+            const yScale = chartHeight / rangeRound;
+            const xScale = chartWidth / (labels.length || 1);
+            const barWidth = Math.min(xScale * 0.6, 40); // Largura máxima de 40px
+            const baselineY = chartY + chartHeight - (0 - minRound) * yScale; // Posição do eixo X (zero)
+
+            let svg = `<svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" style="background: white;">`;
+
+            // Grid de fundo (linhas horizontais)
+            const steps = 5;
+            for (let i = 0; i <= steps; i++) {
+                const val = minRound + (i * rangeRound / steps);
+                const y = chartY + chartHeight - ((val - minRound) * yScale);
+                svg += `<line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
+            }
+
+            // Eixo X (horizontal)
+            svg += `<line x1="${margin.left}" y1="${baselineY}" x2="${width - margin.right}" y2="${baselineY}" stroke="#333" stroke-width="2"/>`;
+
+            // Eixo Y (vertical)
+            svg += `<line x1="${margin.left}" y1="${chartY}" x2="${margin.left}" y2="${chartY + chartHeight}" stroke="#333" stroke-width="2"/>`;
+
+            // Labels Y (valores de escala)
+            for (let i = 0; i <= steps; i++) {
+                const val = minRound + (i * rangeRound / steps);
+                const y = chartY + chartHeight - ((val - minRound) * yScale);
+                svg += `<line x1="${margin.left - 5}" y1="${y}" x2="${margin.left}" y2="${y}" stroke="#333" stroke-width="1"/>`;
+                svg += `<text x="${margin.left - 10}" y="${y + 4}" font-size="10" text-anchor="end" fill="#333" font-weight="500">R$ ${val.toFixed(0)}</text>`;
+            }
+
+            // Barras - desenhar com espaçamento
+            valores.forEach((val, i) => {
+                const x = margin.left + (i + 0.5) * xScale - (barWidth / 2);
+                const barHeight = val * yScale;
+                let barY, actualBarHeight;
+                const cor = val >= 0 ? '#28a745' : '#dc3545';
+
+                if (barHeight >= 0) {
+                    // Barra positiva (sobe para cima)
+                    barY = baselineY - barHeight;
+                    actualBarHeight = barHeight;
+                } else {
+                    // Barra negativa (desce para baixo)
+                    barY = baselineY;
+                    actualBarHeight = Math.abs(barHeight);
+                }
+
+                if (actualBarHeight > 0.5) { // Só desenhar se visível
+                    svg += `<rect x="${x}" y="${barY}" width="${barWidth}" height="${actualBarHeight}" fill="${cor}" opacity="0.85" rx="2"/>`;
+
+                    // Valor em cima da barra
+                    const labelY = barHeight >= 0 ? barY - 5 : barY + actualBarHeight + 15;
+                    svg += `<text x="${x + barWidth/2}" y="${labelY}" font-size="10" text-anchor="middle" fill="#333" font-weight="600">R$ ${val.toFixed(0)}</text>`;
+                }
+            });
+
+            // Labels X (datas)
+            labels.forEach((label, i) => {
+                const x = margin.left + (i + 0.5) * xScale;
+                const dataFormatada = formatarData(label);
+                const dia = dataFormatada.split('/')[0];
+                svg += `<text x="${x}" y="${baselineY + 25}" font-size="11" text-anchor="middle" fill="#333" font-weight="500">${dia}</text>`;
+            });
+
+            // Título dos eixos (opcional)
+            svg += `<text x="${margin.left - 35}" y="${chartY - 10}" font-size="11" text-anchor="middle" fill="#666" font-style="italic">Fluxo</text>`;
+            svg += `<text x="${width - 20}" y="${baselineY + 45}" font-size="11" text-anchor="middle" fill="#666" font-style="italic">Dias</text>`;
+
+            svg += `</svg>`;
+            container.innerHTML = svg;
+        }
+
+        function desenharPizza(containerId, labels, valores) {
+            const container = document.getElementById(containerId);
+            const width = container.clientWidth || 500;
+            const height = container.clientHeight || 300;
+            const centerX = width / 2.5;
+            const centerY = height / 2;
+            const raio = Math.min(width, height) / 3;
+
+            const cores = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF9F40', '#C9CBCF'];
+            const total = valores.reduce((a, b) => a + b, 0);
+
+            let svg = `<svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" style="background: white;">`;
+
+            let anguloInicial = -Math.PI / 2;
+
+            valores.forEach((val, i) => {
+                const proporcao = val / total;
+                const anguloFinal = anguloInicial + (proporcao * 2 * Math.PI);
+
+                // Calcular coordenadas
+                const x1 = centerX + raio * Math.cos(anguloInicial);
+                const y1 = centerY + raio * Math.sin(anguloInicial);
+                const x2 = centerX + raio * Math.cos(anguloFinal);
+                const y2 = centerY + raio * Math.sin(anguloFinal);
+
+                const large = proporcao > 0.5 ? 1 : 0;
+                const path = `M ${centerX} ${centerY} L ${x1} ${y1} A ${raio} ${raio} 0 ${large} 1 ${x2} ${y2} Z`;
+
+                svg += `<path d="${path}" fill="${cores[i % cores.length]}" stroke="white" stroke-width="2"/>`;
+
+                // Label com percentual
+                const anguloMeio = anguloInicial + (proporcao * Math.PI);
+                const labelX = centerX + (raio * 0.65) * Math.cos(anguloMeio);
+                const labelY = centerY + (raio * 0.65) * Math.sin(anguloMeio);
+                const pct = (proporcao * 100).toFixed(0);
+
+                if (pct > 8) { // Só mostrar se for visível
+                    svg += `<text x="${labelX}" y="${labelY}" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">${pct}%</text>`;
+                }
+
+                anguloInicial = anguloFinal;
+            });
+
+            // Legenda
+            let legendaY = 20;
+            labels.forEach((label, i) => {
+                const pct = (valores[i] / total * 100).toFixed(1);
+                svg += `<rect x="${width / 1.5}" y="${legendaY}" width="12" height="12" fill="${cores[i % cores.length]}" rx="2"/>`;
+                svg += `<text x="${width / 1.5 + 18}" y="${legendaY + 10}" font-size="11" fill="#333">${label} (${pct}%)</text>`;
+                legendaY += 20;
+            });
+
+            svg += `</svg>`;
+            container.innerHTML = svg;
+        }
+
+        function deletar(id) {
+            if (confirm('Deletar este lançamento?')) {
+                dados = dados.filter(d => d.id !== id);
+                salvarDados();
+                atualizarDados();
+            }
+        }
+
+        // FUNÇÕES INVESTIMENTOS
+        function carregarInvestimentos() {
+            const saved = localStorage.getItem('investimentos');
+            if (saved) {
+                investimentos = JSON.parse(saved);
+            }
+            atualizarTabelaInvestimentos();
+        }
+
+        function salvarInvestimentos() {
+            localStorage.setItem('investimentos', JSON.stringify(investimentos));
+        }
+
+        function adicionarInvestimento() {
+            const data = document.getElementById('dataInv').value;
+            const tipo = document.getElementById('tipoInv').value;
+            const valor = parseFloat(document.getElementById('valorInv').value);
+            const descricao = document.getElementById('descricaoInv').value;
+
+            if (!data || !valor) {
+                mostrarErroInv('Preencha data e valor!');
+                return;
+            }
+
+            if (valor <= 0) {
+                mostrarErroInv('O valor deve ser maior que zero!');
+                return;
+            }
+
+            investimentos.push({
+                id: Date.now(),
+                data,
+                tipo,
+                valor,
+                descricao,
+                timestamp: new Date().getTime()
+            });
+
+            salvarInvestimentos();
+            document.getElementById('msgInvSuccess').style.display = 'block';
+            setTimeout(() => document.getElementById('msgInvSuccess').style.display = 'none', 2000);
+
+            // Limpar form
+            document.getElementById('dataInv').value = new Date().toISOString().split('T')[0];
+            document.getElementById('descricaoInv').value = '';
+            document.getElementById('valorInv').value = '';
+
+            atualizarTabelaInvestimentos();
+        }
+
+        function deletarInvestimento(id) {
+            if (confirm('Deletar este investimento?')) {
+                investimentos = investimentos.filter(inv => inv.id !== id);
+                salvarInvestimentos();
+                atualizarTabelaInvestimentos();
+            }
+        }
+
+        function atualizarTabelaInvestimentos() {
+            const tbody = document.getElementById('tbodyInv');
+            tbody.innerHTML = '';
+            let totalInv = 0;
+
+            // Ordenar por data decrescente
+            const investimentosOrdenados = [...investimentos].sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            investimentosOrdenados.forEach(inv => {
+                totalInv += inv.valor;
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${formatarData(inv.data)}</td>
+                    <td>${inv.tipo}</td>
+                    <td>${inv.descricao}</td>
+                    <td style="color: #28a745; font-weight: 600;">+R$ ${inv.valor.toFixed(2).replace('.', ',')}</td>
+                    <td><button class="btn-small btn-danger" onclick="deletarInvestimento(${inv.id})">🗑️</button></td>
+                `;
+            });
+
+            // Atualizar total
+            document.getElementById('totalInvestido').innerText = `R$ ${totalInv.toFixed(2).replace('.', ',')}`;
+        }
+
+        function mostrarErroInv(msg) {
+            const el = document.getElementById('msgInvError');
+            el.innerText = '❌ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function limparTudo() {
+            if (confirm('⚠️ APAGAR TODOS OS DADOS? Isto é irreversível!')) {
+                if (confirm('Tem certeza? Esta ação não pode ser desfeita!')) {
+                    dados = [];
+                    salvarDados();
+                    atualizarDados();
+                }
+            }
+        }
+
+        function exportarCSV() {
+            let csv = 'Data,Tipo,Categoria,Descrição,Valor\n';
+            dados.forEach(d => {
+                csv += `${d.data},${d.tipo},${d.categoria},"${d.descricao}",${d.valor}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `despesas_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function abrir(aba) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(aba).classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Renderizar gráficos quando aba Resultados é aberta
+            if (aba === 'dashboard') {
+                const mes = document.getElementById('mesFiltroResultados').value || document.getElementById('mesFiltro').value;
+                document.getElementById('mesFiltroResultados').value = mes;
+                atualizarDadosResultados();
+            }
+        }
+
+        function atualizarDadosResultados() {
+            const mes = document.getElementById('mesFiltroResultados').value;
+            const filtrados = dados.filter(d => d.data.startsWith(mes)).sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            // Calcular totais
+            let receita = 0, despesa = 0, porCat = {};
+            filtrados.forEach(d => {
+                if (d.tipo === 'receita') receita += d.valor;
+                else {
+                    despesa += d.valor;
+                    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.valor;
+                }
+            });
+
+            const saldo = receita - despesa;
+
+            // Atualizar cards
+            document.getElementById('totalReceitas').innerText = `R$ ${receita.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalDespesas').innerText = `R$ ${despesa.toFixed(2).replace('.', ',')}`;
+            document.getElementById('saldo').innerText = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
+            document.getElementById('saldo').style.color = saldo >= 0 ? '#007bff' : '#dc3545';
+
+            // Atualizar tabela de categorias
+            const tbodyC = document.getElementById('tbodyCategoria');
+            tbodyC.innerHTML = '';
+            Object.entries(porCat).forEach(([cat, val]) => {
+                const pct = despesa > 0 ? (val / despesa * 100).toFixed(1) : 0;
+                const row = tbodyC.insertRow();
+                row.innerHTML = `<td>${cat}</td><td>R$ ${val.toFixed(2).replace('.', ',')}</td><td>${pct}%</td>`;
+            });
+
+            // Atualizar gráfico
+            desenharGraficos(filtrados);
+        }
+
+        function mostrarErro(msg) {
+            const el = document.getElementById('msgError');
+            el.innerText = '❌ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function formatarData(d) {
+            return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
+        }
+    </script>
+</body>
+</html>

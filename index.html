@@ -868,10 +868,10 @@
         function carregarDados() {
             if (!usuarioLogado) return;
 
-            carregandoDados = true;
             const caminho = `usuarios/${usuarioLogado.uid}/dados`;
 
-            db.ref(caminho).once('value', (snapshot) => {
+            // Usar .on() para ouvir mudanças em tempo real
+            db.ref(caminho).on('value', (snapshot) => {
                 const dados = snapshot.val();
 
                 if (dados) {

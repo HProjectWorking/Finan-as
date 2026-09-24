@@ -180,23 +180,34 @@
             display: flex;
             border-bottom: 2px solid #eee;
             background: #f8f9fa;
+            overflow-x: auto;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 15px 20px;
+            min-width: 80px;
+            padding: 12px 10px;
             border: none;
             background: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             color: #666;
             font-weight: 500;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
         }
 
         .tab-btn.active {
             color: #667eea;
             border-bottom-color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .tab-btn {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-width: 70px;
+            }
         }
 
         .tab-content {
@@ -340,18 +351,147 @@
             border-radius: 10px;
             margin-bottom: 20px;
             max-width: 500px;
+            width: 100%;
+        }
+
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .category-item {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .category-item button {
+            width: 100%;
+            padding: 8px;
+            font-size: 12px;
         }
 
         @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
+            body {
+                padding: 10px;
             }
-            .form-row {
-                grid-template-columns: 1fr;
+
+            .app-container {
+                border-radius: 0;
+                max-width: 100%;
             }
+
             .header {
                 flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .user-info {
+                font-size: 12px;
+            }
+
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .tab-content {
+                padding: 15px;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
                 gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .card-value {
+                font-size: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 4px;
+            }
+
+            .chart-container {
+                max-width: 100%;
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            h3 {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px;
+                max-width: 100%;
+            }
+
+            .login-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .form-group input {
+                font-size: 16px;
+            }
+
+            .card-title {
+                font-size: 12px;
+            }
+
+            .card-value {
+                font-size: 20px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            .amount {
+                font-size: 12px;
             }
         }
     </style>

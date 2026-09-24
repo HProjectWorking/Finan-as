@@ -367,9 +367,13 @@
         }
 
         .categoria-deletar {
-            padding: 4px 8px !important;
-            font-size: 11px !important;
+            padding: 2px 6px !important;
+            font-size: 10px !important;
             white-space: nowrap;
+            display: inline-block !important;
+            height: auto !important;
+            line-height: 1 !important;
+            margin-left: 8px;
         }
 
         @media (max-width: 768px) {
@@ -514,7 +518,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="abrirTab(event, 'resultados')">Resultados</button>
             <button class="tab-btn" onclick="abrirTab(event, 'controle')">Controle</button>
-            <button class="tab-btn" onclick="abrirTab(event, 'investimentos')">Investimentos</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'investimentos')">Poupança</button>
             <button class="tab-btn" onclick="abrirTab(event, 'categorias')">Categorias</button>
         </div>
 
@@ -544,7 +548,7 @@
                     <div class="card-value" id="saldoTotal">R$ 0,00</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">Investimentos</div>
+                    <div class="card-title">Poupança</div>
                     <div class="card-value" id="totalInvestimentos">R$ 0,00</div>
                 </div>
             </div>
@@ -623,9 +627,9 @@
             </table>
         </div>
 
-        <!-- INVESTIMENTOS -->
+        <!-- POUPANÇA -->
         <div class="tab-content" id="investimentos">
-            <h2>Investimentos</h2>
+            <h2>Poupança</h2>
             <div class="alert" id="investimentosAlert"></div>
             <div class="form-row">
                 <div class="form-group">

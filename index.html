@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Despesas - Firebase</title>
 
-    <!-- Firebase 9+ (compat version - mais compatível) -->
+    <!-- Firebase 9 Compat (Versão Compatível) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- Chart.js para gráficos -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
@@ -50,27 +50,26 @@
             text-align: center;
         }
 
-        .login-container .form-group {
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .login-container label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
             color: #555;
             font-weight: 500;
         }
 
-        .login-container input {
+        .form-group input {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
 
-        .login-container input:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -117,11 +116,11 @@
             max-width: 1200px;
             display: none;
             overflow: hidden;
+            flex-direction: column;
         }
 
         .app-container.active {
             display: flex;
-            flex-direction: column;
         }
 
         .header {
@@ -171,7 +170,6 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
         }
 
         .logout-btn:hover {
@@ -193,7 +191,6 @@
             font-size: 16px;
             color: #666;
             font-weight: 500;
-            transition: all 0.3s;
             border-bottom: 3px solid transparent;
         }
 
@@ -207,38 +204,18 @@
             padding: 30px;
             flex: 1;
             overflow-y: auto;
-            max-height: 70vh;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input,
         .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-row {
@@ -254,7 +231,6 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s;
         }
 
         .btn-primary {
@@ -264,16 +240,6 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-success {
-            background: #4caf50;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #45a049;
         }
 
         .btn-danger {
@@ -283,15 +249,6 @@
 
         .btn-danger:hover {
             background: #da190b;
-        }
-
-        .btn-secondary {
-            background: #999;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #777;
         }
 
         table {
@@ -305,17 +262,12 @@
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: #333;
             border-bottom: 2px solid #ddd;
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid #eee;
-        }
-
-        tr:hover {
-            background: #f9f9f9;
         }
 
         .amount {
@@ -359,22 +311,6 @@
             color: #333;
         }
 
-        .card.positive {
-            border-left-color: #4caf50;
-        }
-
-        .card.negative {
-            border-left-color: #f44336;
-        }
-
-        .chart-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            max-width: 500px;
-        }
-
         .alert {
             padding: 15px;
             border-radius: 5px;
@@ -398,73 +334,32 @@
             border: 1px solid #f5c6cb;
         }
 
-        .month-picker {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .month-picker input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            width: 150px;
-        }
-
-        .category-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .category-item {
+        .chart-container {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .category-item button {
-            padding: 5px 10px;
-            font-size: 12px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 500px;
         }
 
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
-
             .form-row {
                 grid-template-columns: 1fr;
             }
-
             .header {
                 flex-direction: column;
                 gap: 15px;
-                align-items: flex-start;
-            }
-
-            .tabs {
-                flex-wrap: wrap;
-            }
-
-            .tab-btn {
-                flex: 1 1 auto;
-                min-width: 100px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Login Container -->
+    <!-- Login -->
     <div class="login-container active" id="loginContainer">
         <h1>💰 Controle de Despesas</h1>
-
         <div class="alert" id="loginAlert"></div>
 
         <div id="loginForm">
@@ -476,8 +371,8 @@
                 <label>Senha:</label>
                 <input type="password" id="loginPassword" placeholder="Sua senha">
             </div>
-            <button class="login-btn" id="btnLogin" onclick="login()">Entrar</button>
-            <div class="toggle-mode" onclick="toggleLoginMode()">Criar nova conta</div>
+            <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+            <div class="toggle-mode" onclick="mudarModo()">Criar nova conta</div>
         </div>
 
         <div id="registerForm" style="display: none;">
@@ -493,12 +388,12 @@
                 <label>Confirme a Senha:</label>
                 <input type="password" id="registerPasswordConfirm" placeholder="Repita a senha">
             </div>
-            <button class="login-btn" id="btnRegister" onclick="register()">Criar Conta</button>
-            <div class="toggle-mode" onclick="toggleLoginMode()">Voltar para login</div>
+            <button class="login-btn" onclick="criarConta()">Criar Conta</button>
+            <div class="toggle-mode" onclick="mudarModo()">Voltar para login</div>
         </div>
     </div>
 
-    <!-- App Container -->
+    <!-- App -->
     <div class="app-container" id="appContainer">
         <div class="header">
             <h1>💰 Controle de Despesas</h1>
@@ -507,27 +402,20 @@
                     <span class="status-indicator"></span>
                     <span id="userEmail">Usuário</span>
                 </div>
-                <button class="logout-btn" onclick="logout()">Sair</button>
+                <button class="logout-btn" onclick="sair()">Sair</button>
             </div>
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab(event, 'resultados')">📊 Resultados</button>
-            <button class="tab-btn" onclick="showTab(event, 'controle')">➕ Controle</button>
-            <button class="tab-btn" onclick="showTab(event, 'investimentos')">📈 Investimentos</button>
-            <button class="tab-btn" onclick="showTab(event, 'categorias')">🏷️ Categorias</button>
-            <button class="tab-btn" onclick="showTab(event, 'config')">⚙️ Config</button>
+            <button class="tab-btn active" onclick="abrirTab(event, 'resultados')">📊 Resultados</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'controle')">➕ Controle</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'investimentos')">📈 Investimentos</button>
+            <button class="tab-btn" onclick="abrirTab(event, 'categorias')">🏷️ Categorias</button>
         </div>
 
-        <!-- TAB: Resultados -->
+        <!-- RESULTADOS -->
         <div class="tab-content active" id="resultados">
             <h2>Resultados do Mês</h2>
-
-            <div class="month-picker">
-                <label>Mês:</label>
-                <input type="month" id="filterMonth" onchange="filterByMonth()">
-            </div>
-
             <div class="dashboard">
                 <div class="card positive">
                     <div class="card-title">Receitas</div>
@@ -538,7 +426,6 @@
                     <div class="card-value" id="totalDespesas">R$ 0,00</div>
                 </div>
             </div>
-
             <div class="dashboard">
                 <div class="card">
                     <div class="card-title">Saldo</div>
@@ -549,13 +436,11 @@
                     <div class="card-value" id="totalInvestimentos">R$ 0,00</div>
                 </div>
             </div>
-
             <div class="chart-container">
                 <h3>Despesas por Categoria</h3>
                 <canvas id="despesasChart"></canvas>
             </div>
-
-            <h3>Lançamentos do Mês</h3>
+            <h3>Lançamentos</h3>
             <table id="lancamentosTable">
                 <thead>
                     <tr>
@@ -567,17 +452,14 @@
                         <th>Ação</th>
                     </tr>
                 </thead>
-                <tbody id="lancamentosTbody">
-                </tbody>
+                <tbody id="lancamentosTbody"></tbody>
             </table>
         </div>
 
-        <!-- TAB: Controle -->
+        <!-- CONTROLE -->
         <div class="tab-content" id="controle">
             <h2>Adicionar Lançamento</h2>
-
             <div class="alert" id="controleAlert"></div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Data:</label>
@@ -585,35 +467,29 @@
                 </div>
                 <div class="form-group">
                     <label>Tipo:</label>
-                    <select id="lancamentoTipo" onchange="updateCategorias()">
+                    <select id="lancamentoTipo" onchange="atualizarCategorias()">
                         <option value="">Selecione...</option>
                         <option value="despesa">Despesa</option>
                         <option value="receita">Receita</option>
                     </select>
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Categoria:</label>
-                    <select id="lancamentoCategoria">
-                        <option value="">Selecione uma categoria</option>
-                    </select>
+                    <select id="lancamentoCategoria"></select>
                 </div>
                 <div class="form-group">
                     <label>Valor:</label>
                     <input type="number" id="lancamentoValor" placeholder="0.00" step="0.01">
                 </div>
             </div>
-
             <div class="form-group">
                 <label>Descrição:</label>
-                <input type="text" id="lancamentoDescricao" placeholder="Descrição do lançamento">
+                <input type="text" id="lancamentoDescricao" placeholder="Descrição">
             </div>
-
-            <button class="btn btn-primary" onclick="adicionarLancamento()">Adicionar Lançamento</button>
-
-            <h3 style="margin-top: 30px;">Lançamentos Recentes</h3>
+            <button class="btn btn-primary" onclick="adicionarLancamento()">Adicionar</button>
+            <h3 style="margin-top: 30px;">Recentes</h3>
             <table id="recentes">
                 <thead>
                     <tr>
@@ -625,17 +501,14 @@
                         <th>Ação</th>
                     </tr>
                 </thead>
-                <tbody id="receentesTbody">
-                </tbody>
+                <tbody id="receentesTbody"></tbody>
             </table>
         </div>
 
-        <!-- TAB: Investimentos -->
+        <!-- INVESTIMENTOS -->
         <div class="tab-content" id="investimentos">
-            <h2>Registrar Investimento</h2>
-
+            <h2>Investimentos</h2>
             <div class="alert" id="investimentosAlert"></div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Data:</label>
@@ -643,10 +516,9 @@
                 </div>
                 <div class="form-group">
                     <label>Tipo:</label>
-                    <input type="text" id="investTipo" placeholder="Ex: Ações, Fundo, Cripto">
+                    <input type="text" id="investTipo" placeholder="Ex: Ações, Fundo">
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Valor:</label>
@@ -657,37 +529,26 @@
                     <input type="number" id="investRent" placeholder="0.00" step="0.01">
                 </div>
             </div>
-
-            <div class="form-group">
-                <label>Descrição:</label>
-                <input type="text" id="investDescricao" placeholder="Descrição do investimento">
-            </div>
-
-            <button class="btn btn-primary" onclick="adicionarInvestimento()">Adicionar Investimento</button>
-
-            <h3 style="margin-top: 30px;">Investimentos Registrados</h3>
+            <button class="btn btn-primary" onclick="adicionarInvestimento()">Adicionar</button>
+            <h3 style="margin-top: 30px;">Registrados</h3>
             <table id="investTable">
                 <thead>
                     <tr>
                         <th>Data</th>
                         <th>Tipo</th>
-                        <th>Descrição</th>
                         <th class="amount">Valor</th>
                         <th class="amount">Rentabilidade</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
-                <tbody id="investTbody">
-                </tbody>
+                <tbody id="investTbody"></tbody>
             </table>
         </div>
 
-        <!-- TAB: Categorias -->
+        <!-- CATEGORIAS -->
         <div class="tab-content" id="categorias">
             <h2>Gerenciar Categorias</h2>
-
             <div class="alert" id="categoriasAlert"></div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Tipo:</label>
@@ -697,39 +558,21 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Nome da Categoria:</label>
+                    <label>Nome:</label>
                     <input type="text" id="novaCategoriaNome" placeholder="Ex: Alimentação">
                 </div>
             </div>
-
-            <button class="btn btn-primary" onclick="adicionarCategoria()">Adicionar Categoria</button>
-
+            <button class="btn btn-primary" onclick="adicionarCategoria()">Adicionar</button>
             <h3 style="margin-top: 30px;">Categorias de Despesa</h3>
-            <div class="category-list" id="despesaCategories">
-            </div>
-
+            <div id="despesaCategories"></div>
             <h3 style="margin-top: 30px;">Categorias de Receita</h3>
-            <div class="category-list" id="receitaCategories">
-            </div>
-        </div>
-
-        <!-- TAB: Configurações -->
-        <div class="tab-content" id="config">
-            <h2>Configurações</h2>
-
-            <div class="alert" id="configAlert"></div>
-
-            <h3>Informações da Conta</h3>
-            <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 15px;">
-                <p><strong>Email:</strong> <span id="userEmailDisplay">-</span></p>
-                <p><strong>UID:</strong> <span id="userUIDDisplay" style="font-family: monospace; font-size: 12px; word-break: break-all;">-</span></p>
-            </div>
+            <div id="receitaCategories"></div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURAÇÃO DO FIREBASE
+        // FIREBASE CONFIG
         // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyCaTj8hGvbXJerPHxKrZt5T5bJorJy8Qas",
@@ -741,194 +584,165 @@
             appId: "1:227643205501:web:72f5e630d9511915508e14"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        console.log("✅ Firebase inicializado com sucesso!");
+        console.log("✅ Firebase inicializado");
 
         // ============================================
-        // VARIÁVEIS GLOBAIS
+        // VARIÁVEIS
         // ============================================
         let usuarioLogado = null;
         let lancamentos = [];
         let investimentos = [];
         let categoriasDespesa = ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Outros'];
         let categoriasReceita = ['Salário', 'Freelance', 'Investimentos', 'Outros'];
-        let filtroMes = new Date().toISOString().slice(0, 7);
         let despesasChart = null;
+        let carregandoDados = false;
 
         // ============================================
         // AUTENTICAÇÃO
         // ============================================
-        function toggleLoginMode() {
+        function mudarModo() {
             document.getElementById('loginForm').style.display =
                 document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
             document.getElementById('registerForm').style.display =
                 document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
         }
 
-        function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                showAlert('loginAlert', 'Por favor, preencha email e senha', 'error');
-                return;
-            }
-
-            document.getElementById('btnLogin').disabled = true;
-            document.getElementById('btnLogin').textContent = '⏳ Entrando...';
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    usuarioLogado = userCredential.user;
-                    console.log("✅ Login bem-sucedido:", usuarioLogado.email);
-                    inicializarApp();
-                })
-                .catch(error => {
-                    console.error("❌ Erro de login:", error);
-                    showAlert('loginAlert', 'Erro: ' + error.message, 'error');
-                    document.getElementById('btnLogin').disabled = false;
-                    document.getElementById('btnLogin').textContent = 'Entrar';
-                });
-        }
-
-        function register() {
+        function criarConta() {
             const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerPasswordConfirm').value;
+            const senha = document.getElementById('registerPassword').value;
+            const confirmSenha = document.getElementById('registerPasswordConfirm').value;
 
-            if (!email || !password || !confirmPassword) {
-                showAlert('loginAlert', 'Por favor, preencha todos os campos', 'error');
+            if (!email || !senha || !confirmSenha) {
+                alerta('loginAlert', 'Preencha todos os campos', 'error');
                 return;
             }
 
-            if (password !== confirmPassword) {
-                showAlert('loginAlert', 'As senhas não conferem', 'error');
+            if (senha !== confirmSenha) {
+                alerta('loginAlert', 'As senhas não conferem', 'error');
                 return;
             }
 
-            if (password.length < 6) {
-                showAlert('loginAlert', 'A senha deve ter no mínimo 6 caracteres', 'error');
+            if (senha.length < 6) {
+                alerta('loginAlert', 'A senha deve ter no mínimo 6 caracteres', 'error');
                 return;
             }
 
-            document.getElementById('btnRegister').disabled = true;
-            document.getElementById('btnRegister').textContent = '⏳ Criando...';
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    usuarioLogado = userCredential.user;
-                    console.log("✅ Conta criada:", usuarioLogado.email);
-                    inicializarApp();
+            auth.createUserWithEmailAndPassword(email, senha)
+                .then(user => {
+                    console.log("✅ Conta criada:", user.user.email);
+                    usuarioLogado = user.user;
+                    iniciar();
                 })
-                .catch(error => {
-                    console.error("❌ Erro ao criar conta:", error);
-                    showAlert('loginAlert', 'Erro: ' + error.message, 'error');
-                    document.getElementById('btnRegister').disabled = false;
-                    document.getElementById('btnRegister').textContent = 'Criar Conta';
+                .catch(err => {
+                    console.error("❌ Erro:", err.message);
+                    alerta('loginAlert', 'Erro: ' + err.message, 'error');
                 });
         }
 
-        function logout() {
-            if (confirm('Tem certeza que deseja sair?')) {
+        function fazerLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const senha = document.getElementById('loginPassword').value;
+
+            if (!email || !senha) {
+                alerta('loginAlert', 'Preencha email e senha', 'error');
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, senha)
+                .then(user => {
+                    console.log("✅ Login bem-sucedido:", user.user.email);
+                    usuarioLogado = user.user;
+                    iniciar();
+                })
+                .catch(err => {
+                    console.error("❌ Erro:", err.message);
+                    alerta('loginAlert', 'Erro: ' + err.message, 'error');
+                });
+        }
+
+        function sair() {
+            if (confirm('Tem certeza?')) {
                 auth.signOut().then(() => {
                     usuarioLogado = null;
                     lancamentos = [];
                     investimentos = [];
                     document.getElementById('loginContainer').classList.add('active');
                     document.getElementById('appContainer').classList.remove('active');
-                    document.getElementById('loginEmail').value = '';
-                    document.getElementById('loginPassword').value = '';
                 });
             }
         }
 
         // ============================================
-        // INICIALIZAÇÃO
+        // INICIALIZAR APP
         // ============================================
-        function inicializarApp() {
+        function iniciar() {
             document.getElementById('loginContainer').classList.remove('active');
             document.getElementById('appContainer').classList.add('active');
             document.getElementById('userEmail').textContent = usuarioLogado.email;
-            document.getElementById('userEmailDisplay').textContent = usuarioLogado.email;
-            document.getElementById('userUIDDisplay').textContent = usuarioLogado.uid;
 
             const hoje = new Date().toISOString().split('T')[0];
             document.getElementById('lancamentoData').value = hoje;
             document.getElementById('investData').value = hoje;
-            document.getElementById('filterMonth').value = new Date().toISOString().slice(0, 7);
 
             carregarDados();
         }
 
         // ============================================
-        // CARREGAR DADOS
+        // CARREGAR DADOS DO FIREBASE
         // ============================================
         function carregarDados() {
             if (!usuarioLogado) return;
 
-            const userPath = `usuarios/${usuarioLogado.uid}/dados`;
+            carregandoDados = true;
+            const caminho = `usuarios/${usuarioLogado.uid}/dados`;
 
-            db.ref(userPath).on('value', (snapshot) => {
+            db.ref(caminho).once('value', (snapshot) => {
                 const dados = snapshot.val();
 
-                // SE NÃO TEM DADOS NO FIREBASE, NÃO CARREGA
-                if (!dados) {
-                    console.log("📭 Nenhum dado no Firebase ainda");
-                    return;
+                if (dados) {
+                    lancamentos = dados.lancamentos || [];
+                    investimentos = dados.investimentos || [];
+                    categoriasDespesa = dados.categoriasDespesa || categoriasDespesa;
+                    categoriasReceita = dados.categoriasReceita || categoriasReceita;
+                    console.log("✅ Dados carregados:", dados);
+                } else {
+                    console.log("📭 Nenhum dado encontrado");
                 }
 
-                // SÓ CARREGA DADOS QUE EXISTEM
-                if (dados.lancamentos) lancamentos = dados.lancamentos;
-                if (dados.investimentos) investimentos = dados.investimentos;
-                if (dados.categoriasDespesa) categoriasDespesa = dados.categoriasDespesa;
-                if (dados.categoriasReceita) categoriasReceita = dados.categoriasReceita;
-
-                updateCategorias();
-                atualizarResultados();
-                atualizarLancamentos();
-                atualizarInvestimentos();
                 atualizarCategorias();
-
-                console.log("✅ Dados carregados com sucesso!");
+                atualizarResultados();
+                atualizarInvestimentos();
+                carregandoDados = false;
             });
         }
 
         // ============================================
-        // SALVAR DADOS
+        // SALVAR DADOS NO FIREBASE
         // ============================================
         function salvarDados() {
-            if (!usuarioLogado) return;
+            if (!usuarioLogado || carregandoDados) return;
 
-            // NÃO SALVA DADOS VAZIOS - EVITA PERDER INFORMAÇÕES
-            if (lancamentos.length === 0 && investimentos.length === 0) {
-                console.log("⚠️ Ignorando salvar dados vazios");
-                return;
-            }
-
-            const userPath = `usuarios/${usuarioLogado.uid}/dados`;
+            const caminho = `usuarios/${usuarioLogado.uid}/dados`;
             const dados = {
-                lancamentos: lancamentos.length > 0 ? lancamentos : undefined,
-                investimentos: investimentos.length > 0 ? investimentos : undefined,
-                categoriasDespesa,
-                categoriasReceita,
+                lancamentos: lancamentos,
+                investimentos: investimentos,
+                categoriasDespesa: categoriasDespesa,
+                categoriasReceita: categoriasReceita,
                 ultimaAtualizacao: new Date().toISOString()
             };
 
-            // Remove campos undefined para não sobrescrever dados existentes
-            Object.keys(dados).forEach(key => dados[key] === undefined && delete dados[key]);
-
-            db.ref(userPath).update(dados, (error) => {
-                if (error) {
-                    console.error("❌ Erro ao salvar:", error);
-                    showAlert('controleAlert', 'Erro ao salvar dados: ' + error.message, 'error');
-                } else {
-                    console.log("✅ Dados salvos!");
-                }
-            });
+            db.ref(caminho).set(dados)
+                .then(() => {
+                    console.log("✅ Dados salvos com sucesso!");
+                })
+                .catch(err => {
+                    console.error("❌ Erro ao salvar:", err);
+                    alerta('controleAlert', 'Erro ao salvar: ' + err.message, 'error');
+                });
         }
 
         // ============================================
@@ -942,20 +756,19 @@
             const descricao = document.getElementById('lancamentoDescricao').value.trim();
 
             if (!data || !tipo || !categoria || !valor || valor <= 0) {
-                showAlert('controleAlert', 'Por favor, preencha todos os campos corretamente', 'error');
+                alerta('controleAlert', 'Preencha todos os campos corretamente', 'error');
                 return;
             }
 
-            const lancamento = {
+            lancamentos.push({
                 id: Date.now(),
                 data,
                 tipo,
                 categoria,
                 valor,
                 descricao: descricao || 'Sem descrição'
-            };
+            });
 
-            lancamentos.push(lancamento);
             salvarDados();
 
             document.getElementById('lancamentoData').value = new Date().toISOString().split('T')[0];
@@ -964,17 +777,15 @@
             document.getElementById('lancamentoValor').value = '';
             document.getElementById('lancamentoDescricao').value = '';
 
-            showAlert('controleAlert', 'Lançamento adicionado com sucesso!', 'success');
-            updateCategorias();
+            alerta('controleAlert', 'Lançamento adicionado!', 'success');
             atualizarResultados();
         }
 
         function deletarLancamento(id) {
-            if (confirm('Tem certeza que deseja deletar este lançamento?')) {
+            if (confirm('Deletar?')) {
                 lancamentos = lancamentos.filter(l => l.id !== id);
                 salvarDados();
                 atualizarResultados();
-                atualizarLancamentos();
             }
         }
 
@@ -986,41 +797,36 @@
             const tipo = document.getElementById('investTipo').value.trim();
             const valor = parseFloat(document.getElementById('investValor').value);
             const rentabilidade = parseFloat(document.getElementById('investRent').value) || 0;
-            const descricao = document.getElementById('investDescricao').value.trim();
 
             if (!data || !tipo || !valor || valor <= 0) {
-                showAlert('investimentosAlert', 'Por favor, preencha os campos obrigatórios', 'error');
+                alerta('investimentosAlert', 'Preencha os campos obrigatórios', 'error');
                 return;
             }
 
-            const investimento = {
+            investimentos.push({
                 id: Date.now(),
                 data,
                 tipo,
                 valor,
-                rentabilidade,
-                descricao: descricao || 'Sem descrição'
-            };
+                rentabilidade
+            });
 
-            investimentos.push(investimento);
             salvarDados();
 
             document.getElementById('investData').value = new Date().toISOString().split('T')[0];
             document.getElementById('investTipo').value = '';
             document.getElementById('investValor').value = '';
             document.getElementById('investRent').value = '';
-            document.getElementById('investDescricao').value = '';
 
-            showAlert('investimentosAlert', 'Investimento registrado com sucesso!', 'success');
+            alerta('investimentosAlert', 'Investimento adicionado!', 'success');
             atualizarResultados();
         }
 
         function deletarInvestimento(id) {
-            if (confirm('Tem certeza que deseja deletar este investimento?')) {
+            if (confirm('Deletar?')) {
                 investimentos = investimentos.filter(i => i.id !== id);
                 salvarDados();
                 atualizarResultados();
-                atualizarInvestimentos();
             }
         }
 
@@ -1028,39 +834,39 @@
         // CATEGORIAS
         // ============================================
         function adicionarCategoria() {
-            const type = document.getElementById('novaCategoriaType').value;
+            const tipo = document.getElementById('novaCategoriaType').value;
             const nome = document.getElementById('novaCategoriaNome').value.trim();
 
             if (!nome) {
-                showAlert('categoriasAlert', 'Por favor, preencha o nome da categoria', 'error');
+                alerta('categoriasAlert', 'Preencha o nome', 'error');
                 return;
             }
 
-            if (type === 'despesa') {
+            if (tipo === 'despesa') {
                 if (!categoriasDespesa.includes(nome)) {
                     categoriasDespesa.push(nome);
                     salvarDados();
-                    showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
+                    alerta('categoriasAlert', 'Categoria adicionada!', 'success');
                     document.getElementById('novaCategoriaNome').value = '';
                     atualizarCategorias();
                 } else {
-                    showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
+                    alerta('categoriasAlert', 'Categoria já existe', 'error');
                 }
             } else {
                 if (!categoriasReceita.includes(nome)) {
                     categoriasReceita.push(nome);
                     salvarDados();
-                    showAlert('categoriasAlert', 'Categoria adicionada com sucesso!', 'success');
+                    alerta('categoriasAlert', 'Categoria adicionada!', 'success');
                     document.getElementById('novaCategoriaNome').value = '';
                     atualizarCategorias();
                 } else {
-                    showAlert('categoriasAlert', 'Esta categoria já existe', 'error');
+                    alerta('categoriasAlert', 'Categoria já existe', 'error');
                 }
             }
         }
 
         function deletarCategoria(nome, tipo) {
-            if (confirm(`Tem certeza que deseja deletar "${nome}"?`)) {
+            if (confirm(`Deletar "${nome}"?`)) {
                 if (tipo === 'despesa') {
                     categoriasDespesa = categoriasDespesa.filter(c => c !== nome);
                 } else {
@@ -1074,7 +880,7 @@
         // ============================================
         // ATUALIZAR UI
         // ============================================
-        function updateCategorias() {
+        function atualizarCategorias() {
             const tipo = document.getElementById('lancamentoTipo').value;
             const select = document.getElementById('lancamentoCategoria');
             select.innerHTML = '<option value="">Selecione uma categoria</option>';
@@ -1083,18 +889,16 @@
             categorias.forEach(cat => {
                 select.innerHTML += `<option value="${cat}">${cat}</option>`;
             });
-        }
 
-        function atualizarCategorias() {
             const despesaDiv = document.getElementById('despesaCategories');
             const receitaDiv = document.getElementById('receitaCategories');
 
             despesaDiv.innerHTML = '';
             categoriasDespesa.forEach(cat => {
                 despesaDiv.innerHTML += `
-                    <div class="category-item">
+                    <div style="background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between;">
                         <span>${cat}</span>
-                        <button class="btn btn-danger" onclick="deletarCategoria('${cat}', 'despesa')">Deletar</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deletarCategoria('${cat}', 'despesa')">Deletar</button>
                     </div>
                 `;
             });
@@ -1102,54 +906,45 @@
             receitaDiv.innerHTML = '';
             categoriasReceita.forEach(cat => {
                 receitaDiv.innerHTML += `
-                    <div class="category-item">
+                    <div style="background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between;">
                         <span>${cat}</span>
-                        <button class="btn btn-danger" onclick="deletarCategoria('${cat}', 'receita')">Deletar</button>
+                        <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deletarCategoria('${cat}', 'receita')">Deletar</button>
                     </div>
                 `;
             });
         }
 
         function atualizarResultados() {
-            const mesAtual = filtroMes;
-
             let totalReceitas = 0;
             let totalDespesas = 0;
             const despesasPorCategoria = {};
 
             lancamentos.forEach(l => {
-                if (l.data.startsWith(mesAtual)) {
-                    if (l.tipo === 'receita') {
-                        totalReceitas += l.valor;
-                    } else {
-                        totalDespesas += l.valor;
-                        despesasPorCategoria[l.categoria] = (despesasPorCategoria[l.categoria] || 0) + l.valor;
-                    }
+                if (l.tipo === 'receita') {
+                    totalReceitas += l.valor;
+                } else {
+                    totalDespesas += l.valor;
+                    despesasPorCategoria[l.categoria] = (despesasPorCategoria[l.categoria] || 0) + l.valor;
                 }
             });
 
-            let totalInvestimentos = investimentos.reduce((sum, i) => sum + i.valor, 0);
+            const totalInvestimentos = investimentos.reduce((sum, i) => sum + i.valor, 0);
 
-            document.getElementById('totalReceitas').textContent = formatarMoeda(totalReceitas);
-            document.getElementById('totalDespesas').textContent = formatarMoeda(totalDespesas);
-            document.getElementById('saldoTotal').textContent = formatarMoeda(totalReceitas - totalDespesas);
-            document.getElementById('totalInvestimentos').textContent = formatarMoeda(totalInvestimentos);
+            document.getElementById('totalReceitas').textContent = 'R$ ' + totalReceitas.toFixed(2).replace('.', ',');
+            document.getElementById('totalDespesas').textContent = 'R$ ' + totalDespesas.toFixed(2).replace('.', ',');
+            document.getElementById('saldoTotal').textContent = 'R$ ' + (totalReceitas - totalDespesas).toFixed(2).replace('.', ',');
+            document.getElementById('totalInvestimentos').textContent = 'R$ ' + totalInvestimentos.toFixed(2).replace('.', ',');
 
             atualizarGrafico(despesasPorCategoria);
             atualizarLancamentos();
         }
 
         function atualizarLancamentos() {
-            const mesAtual = filtroMes;
             const tbody = document.getElementById('lancamentosTbody');
             const recentes = document.getElementById('receentesTbody');
 
-            const lancamentosFiltrados = lancamentos
-                .filter(l => l.data.startsWith(mesAtual))
-                .sort((a, b) => new Date(b.data) - new Date(a.data));
-
             tbody.innerHTML = '';
-            lancamentosFiltrados.forEach(l => {
+            lancamentos.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(l => {
                 const classe = l.tipo === 'receita' ? 'positive' : 'negative';
                 const data = new Date(l.data).toLocaleDateString('pt-BR');
                 tbody.innerHTML += `
@@ -1157,58 +952,46 @@
                         <td>${data}</td>
                         <td>${l.descricao}</td>
                         <td>${l.categoria}</td>
-                        <td>${l.tipo === 'receita' ? '💰 Receita' : '💸 Despesa'}</td>
+                        <td>${l.tipo === 'receita' ? '💰' : '💸'}</td>
                         <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
-                        <td>
-                            <button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button>
-                        </td>
+                        <td><button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button></td>
                     </tr>
                 `;
             });
 
             recentes.innerHTML = '';
-            lancamentos
-                .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .slice(0, 10)
-                .forEach(l => {
-                    const classe = l.tipo === 'receita' ? 'positive' : 'negative';
-                    const data = new Date(l.data).toLocaleDateString('pt-BR');
-                    recentes.innerHTML += `
-                        <tr>
-                            <td>${data}</td>
-                            <td>${l.descricao}</td>
-                            <td>${l.categoria}</td>
-                            <td>${l.tipo === 'receita' ? '💰 Receita' : '💸 Despesa'}</td>
-                            <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
-                            <td>
-                                <button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
+            lancamentos.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 10).forEach(l => {
+                const classe = l.tipo === 'receita' ? 'positive' : 'negative';
+                const data = new Date(l.data).toLocaleDateString('pt-BR');
+                recentes.innerHTML += `
+                    <tr>
+                        <td>${data}</td>
+                        <td>${l.descricao}</td>
+                        <td>${l.categoria}</td>
+                        <td>${l.tipo === 'receita' ? '💰' : '💸'}</td>
+                        <td class="amount ${classe}">${l.tipo === 'receita' ? '+' : '-'} R$ ${l.valor.toFixed(2)}</td>
+                        <td><button class="btn btn-danger" onclick="deletarLancamento(${l.id})">Deletar</button></td>
+                    </tr>
+                `;
+            });
         }
 
         function atualizarInvestimentos() {
             const tbody = document.getElementById('investTbody');
             tbody.innerHTML = '';
 
-            investimentos
-                .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .forEach(i => {
-                    const data = new Date(i.data).toLocaleDateString('pt-BR');
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${data}</td>
-                            <td>${i.tipo}</td>
-                            <td>${i.descricao}</td>
-                            <td class="amount">R$ ${i.valor.toFixed(2)}</td>
-                            <td class="amount positive">${i.rentabilidade.toFixed(2)}%</td>
-                            <td>
-                                <button class="btn btn-danger" onclick="deletarInvestimento(${i.id})">Deletar</button>
-                            </td>
-                        </tr>
-                    `;
-                });
+            investimentos.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(i => {
+                const data = new Date(i.data).toLocaleDateString('pt-BR');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${data}</td>
+                        <td>${i.tipo}</td>
+                        <td class="amount">R$ ${i.valor.toFixed(2)}</td>
+                        <td class="amount">${i.rentabilidade.toFixed(2)}%</td>
+                        <td><button class="btn btn-danger" onclick="deletarInvestimento(${i.id})">Deletar</button></td>
+                    </tr>
+                `;
+            });
         }
 
         function atualizarGrafico(despesasPorCategoria) {
@@ -1225,9 +1008,9 @@
                 ctx.fillStyle = '#ccc';
                 ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                 ctx.fillStyle = '#666';
-                ctx.font = '16px Arial';
+                ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('Nenhuma despesa neste mês', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                ctx.fillText('Nenhuma despesa', ctx.canvas.width / 2, ctx.canvas.height / 2);
                 return;
             }
 
@@ -1248,9 +1031,7 @@
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+                        legend: { position: 'bottom' }
                     }
                 }
             });
@@ -1259,47 +1040,27 @@
         // ============================================
         // UTILITÁRIOS
         // ============================================
-        function showTab(event, tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
+        function abrirTab(event, tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
 
-        function showAlert(elementId, message, type) {
+        function alerta(elementId, message, type) {
             const alert = document.getElementById(elementId);
             alert.textContent = message;
             alert.className = `alert active alert-${type}`;
-
-            setTimeout(() => {
-                alert.classList.remove('active');
-            }, 5000);
-        }
-
-        function formatarMoeda(valor) {
-            return 'R$ ' + valor.toFixed(2).replace('.', ',');
-        }
-
-        function filterByMonth() {
-            filtroMes = document.getElementById('filterMonth').value;
-            atualizarResultados();
+            setTimeout(() => alert.classList.remove('active'), 5000);
         }
 
         // ============================================
-        // INICIALIZAÇÃO AO CARREGAR
+        // INICIALIZAÇÃO
         // ============================================
         auth.onAuthStateChanged((user) => {
             if (user) {
                 usuarioLogado = user;
-                inicializarApp();
-            } else {
-                document.getElementById('loginContainer').classList.add('active');
-                document.getElementById('appContainer').classList.remove('active');
+                iniciar();
             }
         });
     </script>
